@@ -1,4 +1,4 @@
-use null_vm::elf::Elf;
+use null_vm::{elf::Elf, vm::execution::run_program};
 
 fn main() {
     println!("Reading elf");
@@ -8,4 +8,5 @@ fn main() {
     program.image.iter().for_each(|(addr, word)| {
         println!("0x{addr:08x}: 0x{word:08x}");
     });
+    run_program(program.image, program.entry_point);
 }
