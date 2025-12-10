@@ -6,20 +6,16 @@ const STORE_OPCODE: u32 = 0b0100011;
 const BRANCH_OPCODE: u32 = 0b1100011;
 const JUMP_AND_LINK_REGISTER_OPCCODE: u32 = 0b1100111;
 const JUMP_AND_LINK_OPCCODE: u32 = 0b1101111;
-const LOAD_UPPER_IMM_OPCODE: u32 = 0b0110111;
-const ADD_UPPER_IMM_TO_PC_OPCODE: u32 = 0b0010111;
 
 // TODO: consider using num_enum dep to replace TyFrom/ using the constants here
 enum Opcode {
-    Arith = 0b0110011,
-    ArithImm = 0b0010011,
-    Load = 0b0000011,
-    Store = 0b0100011,
-    Branch = 0b1100011,
-    JumpAndLinkRegister = 0b1100111,
-    JumpAndLink = 0b1101111,
-    LoadUpperImm = 0b0110111,
-    AddUpperImmToPc = 0b0010111,
+    Arith,
+    ArithImm,
+    Load,
+    Store,
+    Branch,
+    JumpAndLinkRegister,
+    JumpAndLink,
 }
 
 impl TryFrom<u32> for Opcode {
@@ -30,10 +26,10 @@ impl TryFrom<u32> for Opcode {
             ARITH_OPCODE => Opcode::Arith,
             ARITH_IMM_OPCODE => Opcode::ArithImm,
             LOAD_OPCODE => Opcode::Load,
-            JUMP_AND_LINK_REGISTER_OPCCODE => Opcode::JumpAndLinkRegister,
-            JUMP_AND_LINK_OPCCODE => Opcode::JumpAndLink,
             STORE_OPCODE => Opcode::Store,
             BRANCH_OPCODE => Opcode::Branch,
+            JUMP_AND_LINK_REGISTER_OPCCODE => Opcode::JumpAndLinkRegister,
+            JUMP_AND_LINK_OPCCODE => Opcode::JumpAndLink,
             _ => panic!("Unknown Opcode: {value}"),
         })
     }
