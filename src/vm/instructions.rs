@@ -80,6 +80,20 @@ pub enum LoadStoreWidth {
     Word,
 }
 
+impl LoadStoreWidth {
+    fn from_func3(func3: u32) -> LoadStoreWidth {
+        const LOAD_STORE_BYTE_WITH: u32 = 0x0;
+        const LOAD_STORE_HALF_WITH: u32 = 0x1;
+        const LOAD_STORE_WORD_WITH: u32 = 0x2;
+        match func3 {
+            LOAD_STORE_BYTE_WITH => LoadStoreWidth::Byte,
+            LOAD_STORE_HALF_WITH => LoadStoreWidth::Half,
+            LOAD_STORE_WORD_WITH => LoadStoreWidth::Word,
+            _ => panic!("Invalid Width"),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum Comparison {
     Equal,
@@ -266,28 +280,15 @@ fn parse_i_instruction(instruction: u32, opcode: Opcode) -> Instruction {
                 offset: imm,
             }
         }
-        Opcode::Load => {
-            let width = match func3 {
-                LOAD_STORE_BYTE_WITH => LoadStoreWidth::Byte,
-                LOAD_STORE_HALF_WITH => LoadStoreWidth::Half,
-                LOAD_STORE_WORD_WITH => LoadStoreWidth::Word,
-                _ => panic!("Invalid Width"),
-            };
-            Instruction::Load {
-                dst: rd,
-                offset: imm,
-                base: rs1,
-                width,
-            }
-        }
+        Opcode::Load => Instruction::Load {
+            dst: rd,
+            offset: imm,
+            base: rs1,
+            width: LoadStoreWidth::from_func3(func3),
+        },
         _ => panic!("Invalid Instruction Encoding"),
     }
 }
-
-// Function Identifiers (func3)
-const LOAD_STORE_BYTE_WITH: u32 = 0x0;
-const LOAD_STORE_HALF_WITH: u32 = 0x1;
-const LOAD_STORE_WORD_WITH: u32 = 0x2;
 
 // S-Type Instruction Format
 // imm[11:5] rs2 rs1 funct3 imm[4:0] opcode
@@ -301,20 +302,12 @@ fn parse_s_instruction(instruction: u32, opcode: Opcode) -> Instruction {
     let rd = (instruction & RD_MASK) >> 7;
     let imm = func7 | rd;
     match opcode {
-        Opcode::Store => {
-            let width = match func3 {
-                LOAD_STORE_BYTE_WITH => LoadStoreWidth::Byte,
-                LOAD_STORE_HALF_WITH => LoadStoreWidth::Half,
-                LOAD_STORE_WORD_WITH => LoadStoreWidth::Word,
-                _ => panic!("Invalid Width"),
-            };
-            Instruction::Store {
-                src: rs2,
-                offset: imm,
-                base: rs1,
-                width,
-            }
-        }
+        Opcode::Store => Instruction::Store {
+            src: rs2,
+            offset: imm,
+            base: rs1,
+            width: LoadStoreWidth::from_func3(func3),
+        },
         _ => panic!("Invalid Instruction Encoding"),
     }
 }
