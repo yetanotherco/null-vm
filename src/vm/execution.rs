@@ -1,4 +1,7 @@
-use std::{collections::BTreeMap, fmt::Debug};
+use std::{
+    collections::BTreeMap,
+    fmt::{Debug, Display},
+};
 
 use crate::vm::instructions::{ArithOp, Comparison, Instruction, LoadStoreWidth};
 
@@ -16,14 +19,13 @@ fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
 
 fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) {
     let mut pc = entrypoint;
-    dbg!(&pc, &memory);
     let mut registers = Registers::default();
     while pc != registers.0[1] {
         let next_instruction = memory.0[&pc];
         let instruction = Instruction::parse(next_instruction);
         run_instruction(&instruction, &mut registers, &mut pc, memory);
     }
-    dbg!(&registers);
+    println!("{}", &registers);
     let return_values = (registers.0[10], registers.0[11]);
     println!("Return Values: {return_values:?}");
 }
@@ -32,24 +34,32 @@ fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) {
 #[derive(Default, Debug)]
 struct Memory(BTreeMap<u32, u32>);
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 struct Registers([u32; 32]);
 // Registers:
 // 0x zero
 // a0-ax function arguments: 0x10 -etc
 // 0x1 return address (ra)
 //
-impl Debug for Registers {
+impl Display for Registers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for (i, elem) in self.0.iter().enumerate() {
-            match i {
-                1 => format!("ra: {elem}").fmt(f)?,
-                2 => format!("sp: {elem}").fmt(f)?,
-                3 => format!("gp: {elem}").fmt(f)?,
-                i @ 10..17 => format!("a{} : {}", i - 10, elem).fmt(f)?,
-                _ => {}
-            }
-        }
+        writeln!(f, "Registers:")?;
+        writeln!(f, "ReturnAddress(ra): {}", self.0[1])?;
+        writeln!(f, "StackPointer(sp): {}", self.0[2])?;
+        // Not used for now
+        // writeln!(f, "GlobalPointer(gp): {}", self.0[2])?;
+        // writeln!(f, "ThreadPointer(tp): {}", self.0[3])?;
+        let function_arguments = self.0[10..17]
+            .iter()
+            .enumerate()
+            .map(|(i, val)| match i {
+                i @ 0..=1 => format!("a{i} (return value {i}) : {val} "),
+                i => format!("a{i}: {val} "),
+            })
+            .collect::<Vec<_>>()
+            .concat();
+        writeln!(f, "FunctionArguments: {function_arguments}")?;
+        // TODO: Add other registers as we use them
         Ok(())
     }
 }
