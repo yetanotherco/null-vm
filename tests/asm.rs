@@ -9,7 +9,7 @@ fn test_basic_program() {
     program.image.iter().for_each(|(addr, word)| {
         println!("0x{:08x}: 0x{:08x}", addr, word);
     });
-    run_program(program.image, program.entry_point);
+    let results = run_program(program.image, program.entry_point);
 
-    // todo: execute and check result
+    assert!(results.0 == 0);
 }

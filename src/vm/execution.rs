@@ -2,10 +2,10 @@ use std::{collections::BTreeMap, fmt::Debug};
 
 use crate::vm::instructions::{ArithOp, Comparison, Instruction, LoadStoreWidth};
 
-pub fn run_program(instruction_map: BTreeMap<u32, u32>, entrypoint: u32) {
+pub fn run_program(instruction_map: BTreeMap<u32, u32>, entrypoint: u32) -> (u32, u32) {
     let mut memory = Memory::default();
     load_program(instruction_map, &mut memory);
-    run_from_entrypoint(&mut memory, entrypoint);
+    run_from_entrypoint(&mut memory, entrypoint)
 }
 
 fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
@@ -14,7 +14,7 @@ fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
     }
 }
 
-fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) {
+fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (u32, u32) {
     let mut pc = entrypoint;
     dbg!(&pc, &memory);
     let mut registers = Registers::default();
@@ -26,6 +26,7 @@ fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) {
     dbg!(&registers);
     let return_values = (registers.0[10], registers.0[11]);
     println!("Return Values: {return_values:?}");
+    return_values
 }
 
 // Toy Memory, TODO: Make expandable memory

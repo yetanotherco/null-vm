@@ -1,4 +1,4 @@
-use null_vm::elf::Elf;
+use null_vm::{elf::Elf, vm::execution::run_program};
 
 #[test]
 fn test_basic_rust() {
@@ -10,5 +10,7 @@ fn test_basic_rust() {
         println!("0x{:08x}: 0x{:08x}", addr, word);
     });
 
-    // todo: execute and check result
+    let results = run_program(program.image, program.entry_point);
+
+    assert!(results.0 == 0);
 }
