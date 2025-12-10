@@ -87,6 +87,7 @@ fn run_instruction(
         }
         Instruction::JumpAndLink { dst, offset } => {
             registers.0[*dst as usize] = *pc;
+            *pc -= 4;
             *pc += offset;
         }
         Instruction::Store {
@@ -101,7 +102,9 @@ fn run_instruction(
                 LoadStoreWidth::Half => todo!(),
                 LoadStoreWidth::Word => value,
             };
-            memory.0.insert(*base + *offset, value);
+            memory
+                .0
+                .insert((registers.0[*base as usize] + *offset), value);
         }
         Instruction::Load {
             dst,
@@ -109,7 +112,7 @@ fn run_instruction(
             base,
             width,
         } => {
-            let value = memory.0[&(*base + *offset)];
+            let value = memory.0[&(registers.0[*base as usize] + *offset)];
             let value = match width {
                 LoadStoreWidth::Byte => todo!(),
                 LoadStoreWidth::Half => todo!(),
