@@ -25,7 +25,7 @@ fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (u32, u32) {
         let instruction = Instruction::parse(next_instruction);
         run_instruction(&instruction, &mut registers, &mut pc, memory);
     }
-    println!("{}", &registers);
+    println!("Final Register Values:\n {}", &registers);
     let return_values = (registers.0[10], registers.0[11]);
     println!("Return Values: {return_values:?}");
     return_values
@@ -72,7 +72,6 @@ fn run_instruction(
     memory: &mut Memory,
 ) {
     *pc += 4;
-    dbg!(inst);
     match inst {
         Instruction::ArithImm { dst, src, imm, op } => {
             let (a, b) = (registers.0[*src as usize], imm);
