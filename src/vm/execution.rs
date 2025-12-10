@@ -20,6 +20,8 @@ fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
 fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (u32, u32) {
     let mut pc = entrypoint;
     let mut registers = Registers::default();
+    // TODO: find what the starting value should be
+    registers.0[2] = 16;
     while pc != registers.0[1] {
         let next_instruction = memory.0[&pc];
         let instruction = Instruction::parse(next_instruction);
@@ -74,25 +76,25 @@ fn run_instruction(
     *pc += 4;
     match inst {
         Instruction::ArithImm { dst, src, imm, op } => {
-            let (a, b) = (registers.0[*src as usize], imm);
+            let (a, b) = (registers.0[*src as usize] as i32, imm);
             let res = match op {
                 ArithOp::Add => a + b,
                 _ => unimplemented!(),
             };
-            registers.0[*dst as usize] = res;
+            registers.0[*dst as usize] = res as u32;
         }
         Instruction::JumpAndLinkRegister { dst, base, offset } => {
             if *dst != 0 {
                 registers.0[*dst as usize] = *pc;
             }
-            *pc = registers.0[*base as usize] + offset;
+            *pc = (registers.0[*base as usize] as i32 + offset) as u32;
         }
         Instruction::JumpAndLink { dst, offset } => {
             if *dst != 0 {
                 registers.0[*dst as usize] = *pc;
             }
             *pc -= 4;
-            *pc += offset;
+            *pc = (*pc as i32 + offset) as u32;
         }
         Instruction::Store {
             src,
@@ -116,7 +118,7 @@ fn run_instruction(
             base,
             width,
         } => {
-            let value = memory.0[&(registers.0[*base as usize] + *offset)];
+            let value = memory.0[&((registers.0[*base as usize] as i32 + *offset) as u32)];
             let value = match width {
                 LoadStoreWidth::Byte => todo!(),
                 LoadStoreWidth::Half => todo!(),

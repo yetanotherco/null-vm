@@ -113,17 +113,17 @@ pub enum Instruction {
     ArithImm {
         dst: u32,
         src: u32,
-        imm: u32,
+        imm: i32,
         op: ArithOp,
     },
     JumpAndLink {
         dst: u32,
-        offset: u32,
+        offset: i32,
     },
     JumpAndLinkRegister {
         base: u32,
         dst: u32,
-        offset: u32,
+        offset: i32,
     },
     Store {
         src: u32,
@@ -133,7 +133,7 @@ pub enum Instruction {
     },
     Load {
         dst: u32,
-        offset: u32,
+        offset: i32,
         base: u32,
         width: LoadStoreWidth,
     },
@@ -232,11 +232,15 @@ const SLTU_FUNC_IDENTIFIER: u32 = 0x3;
 // | imm  | rs1  |funct3|  rd |opcode|
 // |31..20|19..15|14..12|11..7| 6..0 |
 fn parse_i_instruction(instruction: u32, opcode: Opcode) -> Instruction {
-    let func7 = (instruction & FUNC7_MASK) >> 25;
     let func3 = (instruction & FUNC3_MASK) >> 12;
-    let rs2 = (instruction & RS2_MASK) >> 20;
     let rs1 = (instruction & RS1_MASK) >> 15;
-    let mut imm = func7 | rs2;
+    let imm = ((instruction >> 20) & 0x7ff) as i32;
+    let mut imm: i32 = if (instruction & 0x8000_0000) != 0 {
+        imm as i32 - (1 << 11)
+    } else {
+        imm as i32
+    };
+
     let rd = (instruction & RD_MASK) >> 7;
     match opcode {
         Opcode::ArithImm => {
@@ -354,6 +358,11 @@ fn parse_b_instruction(instruction: u32, opcode: Opcode) -> Instruction {
 fn parse_j_instruction(instruction: u32, opcode: Opcode) -> Instruction {
     let imm =
         instruction & 0xff000 | ((instruction & 0x100000) >> 9) | ((instruction >> 20) & 0x7fe);
+    let imm: i32 = if (instruction & 0x8000_0000) != 0 {
+        imm as i32 - (1 << 20)
+    } else {
+        imm as i32
+    };
     let rd = (instruction & RD_MASK) >> 7;
     match opcode {
         Opcode::JumpAndLink => Instruction::JumpAndLink {
