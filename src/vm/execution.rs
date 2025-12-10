@@ -82,11 +82,15 @@ fn run_instruction(
             registers.0[*dst as usize] = res;
         }
         Instruction::JumpAndLinkRegister { dst, base, offset } => {
-            registers.0[*dst as usize] = *pc;
+            if *dst != 0 {
+                registers.0[*dst as usize] = *pc;
+            }
             *pc = registers.0[*base as usize] + offset;
         }
         Instruction::JumpAndLink { dst, offset } => {
-            registers.0[*dst as usize] = *pc;
+            if *dst != 0 {
+                registers.0[*dst as usize] = *pc;
+            }
             *pc -= 4;
             *pc += offset;
         }
