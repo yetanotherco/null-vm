@@ -52,4 +52,4 @@ jobs:
 
       - name: Run tests
         run: |
-          make test-no-compile
+          cd vm && make test-no-compile
