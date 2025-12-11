@@ -6,6 +6,8 @@ const STORE_OPCODE: u32 = 0b0100011;
 const BRANCH_OPCODE: u32 = 0b1100011;
 const JUMP_AND_LINK_REGISTER_OPCCODE: u32 = 0b1100111;
 const JUMP_AND_LINK_OPCCODE: u32 = 0b1101111;
+const LOAD_UPPER_IMM_OPCODE: u32 = 0b0110111;
+const ADD_UPPER_IMM_TO_PC: u32 = 0b0010111;
 
 // TODO: consider using num_enum dep to replace TyFrom/ using the constants here
 enum Opcode {
@@ -16,6 +18,8 @@ enum Opcode {
     Branch,
     JumpAndLinkRegister,
     JumpAndLink,
+    LoadUpperImm,
+    AddUpperImmToPc,
 }
 
 impl TryFrom<u32> for Opcode {
@@ -30,6 +34,8 @@ impl TryFrom<u32> for Opcode {
             BRANCH_OPCODE => Opcode::Branch,
             JUMP_AND_LINK_REGISTER_OPCCODE => Opcode::JumpAndLinkRegister,
             JUMP_AND_LINK_OPCCODE => Opcode::JumpAndLink,
+            LOAD_UPPER_IMM_OPCODE => Opcode::LoadUpperImm,
+            ADD_UPPER_IMM_TO_PC => Opcode::AddUpperImmToPc,
             _ => panic!("Unknown Opcode: {value}"),
         })
     }
@@ -143,6 +149,14 @@ pub enum Instruction {
         cond: Comparison,
         offset: u32,
     },
+    LoadUpperImm {
+        dst: u32,
+        imm: u32,
+    },
+    AddUpperImmToPc {
+        dst: u32,
+        imm: u32,
+    },
 }
 
 const OPCODE_MASK: u32 = 0x0000007f;
@@ -151,6 +165,7 @@ const FUNC3_MASK: u32 = 0x00007000;
 const RS1_MASK: u32 = 0x000f8000;
 const RS2_MASK: u32 = 0x01f00000;
 const RD_MASK: u32 = 0x00000f80;
+const U_TYPE_IMM_MASK: u32 = 0xfffff000;
 
 impl Instruction {
     pub fn parse(instruction: u32) -> Instruction {
@@ -161,7 +176,7 @@ impl Instruction {
             InstructionFormat::S => parse_s_instruction(instruction, opcode),
             InstructionFormat::B => parse_b_instruction(instruction, opcode),
             InstructionFormat::J => parse_j_instruction(instruction, opcode),
-            _ => unimplemented!(),
+            InstructionFormat::U => parse_u_instruction(instruction, opcode),
         }
     }
 }
@@ -369,6 +384,19 @@ fn parse_j_instruction(instruction: u32, opcode: Opcode) -> Instruction {
             dst: rd,
             offset: imm,
         },
+        _ => unimplemented!(),
+    }
+}
+
+// U-Type Instruction Format
+// |imm[31:12] | rd  |opcode|
+// | 31..12    |11..7| 6..0 |
+fn parse_u_instruction(instruction: u32, opcode: Opcode) -> Instruction {
+    let imm = instruction & U_TYPE_IMM_MASK;
+    let rd = (instruction & RD_MASK) >> 7;
+    match opcode {
+        Opcode::LoadUpperImm => Instruction::LoadUpperImm { dst: rd, imm },
+        Opcode::AddUpperImmToPc => Instruction::AddUpperImmToPc { dst: rd, imm },
         _ => unimplemented!(),
     }
 }

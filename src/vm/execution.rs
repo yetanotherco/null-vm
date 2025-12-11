@@ -152,6 +152,10 @@ fn run_instruction(
                 *pc += offset
             }
         }
+        Instruction::LoadUpperImm { dst, imm } => registers.0[*dst as usize] = (*imm << 12) as i32,
+        Instruction::AddUpperImmToPc { dst, imm } => {
+            registers.0[*dst as usize] = (*pc + (*imm << 12)) as i32
+        }
         _ => unimplemented!(),
     }
 }
