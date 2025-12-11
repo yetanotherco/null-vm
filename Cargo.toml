@@ -1,5 +1,5 @@
 [workspace]
 members = [
-  "null-vm",
-  "riscv-prover",
+  "vm",
+  "prover",
 ]
