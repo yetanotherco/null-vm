@@ -1,4 +1,4 @@
-use null_vm::{elf::Elf, vm::execution::run_program};
+use vm::{elf::Elf, vm::execution::run_program};
 
 #[test]
 fn test_basic_rust() {

@@ -44,15 +44,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "null-vm"
-version = "0.1.0"
-dependencies = [
- "elf",
- "hashbrown",
- "thiserror",
-]
-
-[[package]]
 name = "once_cell"
 version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -68,6 +59,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "prover"
+version = "0.1.0"
+
+[[package]]
 name = "quote"
 version = "1.0.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -75,10 +70,6 @@ checksum = "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f"
 dependencies = [
  "proc-macro2",
 ]
-
-[[package]]
-name = "riscv-prover"
-version = "0.1.0"
 
 [[package]]
 name = "serde"
@@ -151,6 +142,15 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "vm"
+version = "0.1.0"
+dependencies = [
+ "elf",
+ "hashbrown",
+ "thiserror",
+]
 
 [[package]]
 name = "zerocopy"
