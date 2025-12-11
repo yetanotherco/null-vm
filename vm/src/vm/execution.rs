@@ -152,7 +152,12 @@ fn run_instruction(
                 *pc += offset
             }
         }
-        Instruction::Arith { dst, src1, src2, op } => {
+        Instruction::Arith {
+            dst,
+            src1,
+            src2,
+            op,
+        } => {
             let (a, b) = (registers.0[*src1 as usize], registers.0[*src2 as usize]);
             let res = match op {
                 ArithOp::Add => a.wrapping_add(b),
