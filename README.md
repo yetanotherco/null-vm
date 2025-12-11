@@ -1,12 +1,12 @@
 # Null VM
 
-Verifiable VM made in collaboration with Lambdaclass and 3MI
+Verifiable VM made in collaboration with [Lambdaclass](https://lambdaclass.com/) and [3MI Labs](https://www.3milabs.tech/)
 
 Non-null name TBD
 
 We are developing an open-source verifiable virtual machine that allows users to prove the correctness of the execution of a given program with an input stream.
 
-Right now, this is a project under development and experimentation and should not be used in production!
+Right now, this is a project under development and experimentation and must not be used in production!
 
 ## Design choices
 
@@ -26,7 +26,11 @@ Following [ethrex](https://github.com/lambdaclass/ethrex):
 
 ## Roadmap
 
+This project is under active development. Our primary objective is to have a first working version for the virtual machine. The roadmap for the project can be found [here](./docs/roadmap.md).
+
 ## Documentation
+
+Full documentation can be found in [docs](./docs/).
 
 ## Testing
 
