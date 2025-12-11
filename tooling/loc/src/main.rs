@@ -7,13 +7,13 @@ use tokei::{Config, Language, LanguageType, Languages};
 
 mod report;
 
+const EXCLUDED: &[&str] = &["tooling", "target", "tests", "*tests*", "benchmarks"];
+
 fn count_crates_loc(crates_path: &PathBuf, config: &Config) -> Vec<(String, usize)> {
     let top_level_crate_dirs = std::fs::read_dir(crates_path)
         .unwrap()
         .filter_map(|e| e.ok())
         .collect::<Vec<DirEntry>>();
-
-    let excluded_dirs = ["tooling", "target", "tests"];
 
     let mut crates_loc: Vec<(String, usize)> = top_level_crate_dirs
         .into_iter()
@@ -22,7 +22,7 @@ fn count_crates_loc(crates_path: &PathBuf, config: &Config) -> Vec<(String, usiz
             let crate_name = crate_path.file_name().unwrap().to_str().unwrap();
 
             // Skip excluded directories
-            if excluded_dirs.contains(&crate_name) {
+            if EXCLUDED.contains(&crate_name) {
                 return None;
             }
 
@@ -44,7 +44,7 @@ fn count_crates_loc(crates_path: &PathBuf, config: &Config) -> Vec<(String, usiz
 
 fn count_loc(path: PathBuf, config: &Config) -> Option<Language> {
     let mut languages = Languages::new();
-    languages.get_statistics(&[path], &["tests", "*tests*", "target", "tooling"], config);
+    languages.get_statistics(&[path], EXCLUDED, config);
     languages.get(&LanguageType::Rust).cloned()
 }
 
