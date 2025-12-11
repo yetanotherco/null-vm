@@ -171,3 +171,28 @@ fn test_xori_max() {
 fn test_xori_negate() {
     run_program_and_check_output("./program_artifacts/asm/xori_negate.elf", 0x01);
 }
+
+#[test]
+fn test_slti() {
+    run_program_and_check_output("./program_artifacts/asm/slti.elf", 0);
+}
+
+#[test]
+fn test_slti_one() {
+    run_program_and_check_output("./program_artifacts/asm/slti_one.elf", 1);
+}
+
+#[test]
+fn test_slti_minus_one() {
+    run_program_and_check_output("./program_artifacts/asm/slti_minus_one.elf", 0);
+}
+
+#[test]
+fn test_slti_negative() {
+    run_program_and_check_output("./program_artifacts/asm/slti_negative.elf", 1);
+}
+
+#[test]
+fn test_slti_negative_minus() {
+    run_program_and_check_output("./program_artifacts/asm/slti_negative_minus.elf", 0);
+}
