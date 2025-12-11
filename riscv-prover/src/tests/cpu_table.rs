@@ -1,23 +1,5 @@
-use crate::air::{
-    constraints_templates::{new_add_constraint, new_bit_constraints},
-    cpu_air::{CPUTableAIR, build_cpu_trace},
-};
-
-use lambdaworks_crypto::fiat_shamir::default_transcript::DefaultTranscript;
 use lambdaworks_math::field::{
-    element::FieldElement,
-    fields::fft_friendly::{
-        babybear_u32::Babybear31PrimeField, quartic_babybear_u32::Degree4BabyBearU32ExtensionField,
-    },
-};
-use stark_platinum_prover::{
-    constraints::{boundary::BoundaryConstraints, transition::TransitionConstraint},
-    context::AirContext,
-    proof::options::ProofOptions,
-    prover::{IsStarkProver, Prover},
-    trace::TraceTable,
-    traits::AIR,
-    verifier::{IsStarkVerifier, Verifier},
+    element::FieldElement, fields::fft_friendly::babybear_u32::Babybear31PrimeField,
 };
 
 type FE = FieldElement<Babybear31PrimeField>;
@@ -301,24 +283,36 @@ pub fn build_cpu_columns_example() -> Vec<Vec<FE>> {
     columns
 }
 
-#[test]
-fn test_prove_cpu_table() {
-    let columns = build_cpu_columns_example();
-    let mut trace = build_cpu_trace(columns);
-    let proof_options = ProofOptions::default_test_options();
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::air::cpu_air::{CPUTableAIR, build_cpu_trace};
+    use lambdaworks_crypto::fiat_shamir::default_transcript::DefaultTranscript;
+    use lambdaworks_math::field::fields::fft_friendly::quartic_babybear_u32::Degree4BabyBearU32ExtensionField;
+    use stark_platinum_prover::{
+        proof::options::ProofOptions,
+        prover::{IsStarkProver, Prover},
+        verifier::{IsStarkVerifier, Verifier},
+    };
+    #[test]
+    fn test_prove_cpu_table() {
+        let columns = build_cpu_columns_example();
+        let mut trace = build_cpu_trace(columns);
+        let proof_options = ProofOptions::default_test_options();
 
-    let proof = Prover::<CPUTableAIR>::prove(
-        &mut trace,
-        &(),
-        &proof_options,
-        DefaultTranscript::<Degree4BabyBearU32ExtensionField>::new(&[]),
-    )
-    .unwrap();
+        let proof = Prover::<CPUTableAIR>::prove(
+            &mut trace,
+            &(),
+            &proof_options,
+            DefaultTranscript::<Degree4BabyBearU32ExtensionField>::new(&[]),
+        )
+        .unwrap();
 
-    assert!(Verifier::<CPUTableAIR>::verify(
-        &proof,
-        &(),
-        &proof_options,
-        DefaultTranscript::<Degree4BabyBearU32ExtensionField>::new(&[]),
-    ));
+        assert!(Verifier::<CPUTableAIR>::verify(
+            &proof,
+            &(),
+            &proof_options,
+            DefaultTranscript::<Degree4BabyBearU32ExtensionField>::new(&[]),
+        ));
+    }
 }
