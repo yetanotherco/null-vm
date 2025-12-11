@@ -296,8 +296,5 @@ fn test_srli_max() {
 
 #[test]
 fn test_srli_max_max() {
-    run_program_and_check_output(
-        "./program_artifacts/asm/srli_max_max.elf",
-        0x00000001,
-    );
+    run_program_and_check_output("./program_artifacts/asm/srli_max_max.elf", 0x00000001);
 }
