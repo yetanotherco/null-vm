@@ -236,9 +236,9 @@ fn parse_i_instruction(instruction: u32, opcode: Opcode) -> Instruction {
     let rs1 = (instruction & RS1_MASK) >> 15;
     let imm = ((instruction >> 20) & 0x7ff) as i32;
     let mut imm: i32 = if (instruction & 0x8000_0000) != 0 {
-        imm as i32 - (1 << 11)
+        imm - (1 << 11)
     } else {
-        imm as i32
+        imm
     };
 
     let rd = (instruction & RD_MASK) >> 7;

@@ -87,7 +87,7 @@ fn run_instruction(
                 ArithOp::ShiftLeftLogical => a << b,
                 ArithOp::ShiftRightLogical => a >> b,
                 ArithOp::ShiftRightArith => a >> b,
-                ArithOp::SetLessThan => ((a as i32) < b) as i32,
+                ArithOp::SetLessThan => (a < b) as i32,
                 ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
             };
             registers.0[*dst as usize] = res;
@@ -96,7 +96,7 @@ fn run_instruction(
             if *dst != 0 {
                 registers.0[*dst as usize] = *pc as i32;
             }
-            *pc = (registers.0[*base as usize] as i32 + offset) as u32;
+            *pc = (registers.0[*base as usize] + offset) as u32;
         }
         Instruction::JumpAndLink { dst, offset } => {
             if *dst != 0 {
@@ -127,7 +127,7 @@ fn run_instruction(
             base,
             width,
         } => {
-            let value = memory.0[&((registers.0[*base as usize] as i32 + *offset) as u32)];
+            let value = memory.0[&((registers.0[*base as usize] + *offset) as u32)];
             let value = match width {
                 LoadStoreWidth::Byte => todo!(),
                 LoadStoreWidth::Half => todo!(),
