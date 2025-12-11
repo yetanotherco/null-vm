@@ -5,7 +5,7 @@ use std::{
 
 use crate::vm::instructions::{ArithOp, Comparison, Instruction, LoadStoreWidth};
 
-pub fn run_program(instruction_map: BTreeMap<u32, u32>, entrypoint: u32) -> (u32, u32) {
+pub fn run_program(instruction_map: BTreeMap<u32, u32>, entrypoint: u32) -> (i32, i32) {
     let mut memory = Memory::default();
     load_program(instruction_map, &mut memory);
     run_from_entrypoint(&mut memory, entrypoint)
@@ -13,17 +13,17 @@ pub fn run_program(instruction_map: BTreeMap<u32, u32>, entrypoint: u32) -> (u32
 
 fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
     for (addr, instruction) in instruction_map {
-        memory.0.insert(addr, instruction);
+        memory.0.insert(addr, instruction as i32);
     }
 }
 
-fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (u32, u32) {
+fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (i32, i32) {
     let mut pc = entrypoint;
     let mut registers = Registers::default();
     // TODO: find what the starting value should be
     registers.0[2] = 16;
-    while pc != registers.0[1] {
-        let next_instruction = memory.0[&pc];
+    while pc as i32 != registers.0[1] {
+        let next_instruction = memory.0[&pc] as u32;
         let instruction = Instruction::parse(next_instruction);
         run_instruction(&instruction, &mut registers, &mut pc, memory);
     }
@@ -35,10 +35,10 @@ fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (u32, u32) {
 
 // Toy Memory, TODO: Make expandable memory
 #[derive(Default, Debug)]
-struct Memory(BTreeMap<u32, u32>);
+struct Memory(BTreeMap<u32, i32>);
 
 #[derive(Default, Debug)]
-struct Registers([u32; 32]);
+struct Registers([i32; 32]);
 // Registers:
 // 0x zero
 // a0-ax function arguments: 0x10 -etc
@@ -47,6 +47,7 @@ struct Registers([u32; 32]);
 impl Display for Registers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Registers:")?;
+        writeln!(f, "Zero(zero): {}", self.0[0])?;
         writeln!(f, "ReturnAddress(ra): {}", self.0[1])?;
         writeln!(f, "StackPointer(sp): {}", self.0[2])?;
         // Not used for now
@@ -76,22 +77,30 @@ fn run_instruction(
     *pc += 4;
     match inst {
         Instruction::ArithImm { dst, src, imm, op } => {
-            let (a, b) = (registers.0[*src as usize] as i32, imm);
+            let (a, b) = (registers.0[*src as usize], *imm);
             let res = match op {
                 ArithOp::Add => a + b,
-                _ => unimplemented!(),
+                ArithOp::Sub => panic!("SubImm not supported"),
+                ArithOp::Xor => a ^ b,
+                ArithOp::Or => a | b,
+                ArithOp::And => a & b,
+                ArithOp::ShiftLeftLogical => a << b,
+                ArithOp::ShiftRightLogical => a >> b,
+                ArithOp::ShiftRightArith => a >> b,
+                ArithOp::SetLessThan => ((a as i32) < b) as i32,
+                ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
             };
-            registers.0[*dst as usize] = res as u32;
+            registers.0[*dst as usize] = res;
         }
         Instruction::JumpAndLinkRegister { dst, base, offset } => {
             if *dst != 0 {
-                registers.0[*dst as usize] = *pc;
+                registers.0[*dst as usize] = *pc as i32;
             }
             *pc = (registers.0[*base as usize] as i32 + offset) as u32;
         }
         Instruction::JumpAndLink { dst, offset } => {
             if *dst != 0 {
-                registers.0[*dst as usize] = *pc;
+                registers.0[*dst as usize] = *pc as i32;
             }
             *pc -= 4;
             *pc = (*pc as i32 + offset) as u32;
@@ -110,7 +119,7 @@ fn run_instruction(
             };
             memory
                 .0
-                .insert((registers.0[*base as usize] + *offset), value);
+                .insert(registers.0[*base as usize] as u32 + *offset, value);
         }
         Instruction::Load {
             dst,
