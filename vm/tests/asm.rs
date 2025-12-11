@@ -250,10 +250,16 @@ fn test_slli_max() {
 
 #[test]
 fn test_slli_max_half() {
-    run_program_and_check_output("./program_artifacts/asm/slli_max_half.elf", 0xFFFF8000u32 as i32);
+    run_program_and_check_output(
+        "./program_artifacts/asm/slli_max_half.elf",
+        0xFFFF8000u32 as i32,
+    );
 }
 
 #[test]
 fn test_slli_max_max() {
-    run_program_and_check_output("./program_artifacts/asm/slli_max_max.elf", 0x80000000u32 as i32);
+    run_program_and_check_output(
+        "./program_artifacts/asm/slli_max_max.elf",
+        0x80000000u32 as i32,
+    );
 }
