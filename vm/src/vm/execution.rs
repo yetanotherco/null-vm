@@ -173,6 +173,5 @@ fn run_instruction(
             };
             registers.0[*dst as usize] = res;
         }
-        _ => unimplemented!(),
     }
 }
