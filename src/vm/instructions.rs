@@ -60,7 +60,7 @@ impl Opcode {
             &Opcode::Store => InstructionFormat::S,
             &Opcode::Branch => InstructionFormat::B,
             &Opcode::JumpAndLink => InstructionFormat::J,
-            _ => unimplemented!(),
+            &Opcode::LoadUpperImm | &Opcode::AddUpperImmToPc => InstructionFormat::U,
         }
     }
 }
