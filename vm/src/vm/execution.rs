@@ -13,32 +13,31 @@ pub fn run_program(instruction_map: BTreeMap<u32, u32>, entrypoint: u32) -> (i32
 
 fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
     for (addr, instruction) in instruction_map {
-        memory.0.insert(addr, instruction as i32);
+        memory.0.insert(addr, instruction);
     }
 }
 
 fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (i32, i32) {
     let mut pc = entrypoint;
     let mut registers = Registers::default();
-    // TODO: find what the starting value should be
-    registers.0[2] = 16;
-    while pc as i32 != registers.0[1] {
-        let next_instruction = memory.0[&pc] as u32;
+    registers.0[2] = 0xFFFFFFFF; // 4GB
+    while pc != registers.0[1] {
+        let next_instruction = memory.0[&pc];
         let instruction = Instruction::parse(next_instruction);
         run_instruction(&instruction, &mut registers, &mut pc, memory);
     }
     println!("Final Register Values:\n {}", &registers);
-    let return_values = (registers.0[10], registers.0[11]);
+    let return_values = (registers.0[10] as i32, registers.0[11] as i32);
     println!("Return Values: {return_values:?}");
     return_values
 }
 
 // Toy Memory, TODO: Make expandable memory
 #[derive(Default, Debug)]
-struct Memory(BTreeMap<u32, i32>);
+struct Memory(BTreeMap<u32, u32>);
 
 #[derive(Default, Debug)]
-struct Registers([i32; 32]);
+struct Registers([u32; 32]);
 // Registers:
 // 0x zero
 // a0-ax function arguments: 0x10 -etc
@@ -77,7 +76,7 @@ fn run_instruction(
     *pc += 4;
     match inst {
         Instruction::ArithImm { dst, src, imm, op } => {
-            let (a, b) = (registers.0[*src as usize], *imm);
+            let (a, b) = (registers.0[*src as usize] as i32, *imm);
             let res = match op {
                 ArithOp::Add => a + b,
                 ArithOp::Sub => panic!("SubImm not supported"),
@@ -90,18 +89,18 @@ fn run_instruction(
                 ArithOp::SetLessThan => (a < b) as i32,
                 ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
             };
-            registers.0[*dst as usize] = res;
+            registers.0[*dst as usize] = res as u32;
         }
         Instruction::JumpAndLinkRegister { dst, base, offset } => {
-            let new_pc = (registers.0[*base as usize] + offset) as u32;
+            let new_pc = (registers.0[*base as usize] as i32 + offset) as u32;
             if *dst != 0 {
-                registers.0[*dst as usize] = *pc as i32;
+                registers.0[*dst as usize] = *pc;
             }
             *pc = new_pc;
         }
         Instruction::JumpAndLink { dst, offset } => {
             if *dst != 0 {
-                registers.0[*dst as usize] = *pc as i32;
+                registers.0[*dst as usize] = *pc;
             }
             *pc -= 4;
             *pc = (*pc as i32 + offset) as u32;
@@ -120,7 +119,7 @@ fn run_instruction(
             };
             memory
                 .0
-                .insert(registers.0[*base as usize] as u32 + *offset, value);
+                .insert(registers.0[*base as usize] + *offset, value);
         }
         Instruction::Load {
             dst,
@@ -128,7 +127,7 @@ fn run_instruction(
             base,
             width,
         } => {
-            let value = memory.0[&((registers.0[*base as usize] + *offset) as u32)];
+            let value = memory.0[&((registers.0[*base as usize] as i32 + *offset) as u32)];
             let value = match width {
                 LoadStoreWidth::Byte => todo!(),
                 LoadStoreWidth::Half => todo!(),
