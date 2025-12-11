@@ -77,9 +77,6 @@ fn main() {
         let mut current_detailed_loc_report = HashMap::new();
         for report in null_vm_loc.reports {
             let file_path = report.name;
-            // let file_name = file_path.file_name().unwrap().to_str().unwrap();
-            // let dir_path = file_path.parent().unwrap();
-
             current_detailed_loc_report
                 .entry(file_path.as_os_str().to_str().unwrap().to_owned())
                 .and_modify(|e: &mut usize| *e += report.stats.code)
