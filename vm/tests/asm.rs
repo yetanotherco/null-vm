@@ -196,3 +196,24 @@ fn test_slti_negative() {
 fn test_slti_negative_minus() {
     run_program_and_check_output("./program_artifacts/asm/slti_negative_minus.elf", 0);
 }
+
+#[test]
+fn test_sltiu() {
+    run_program_and_check_output("./program_artifacts/asm/sltiu.elf", 0);
+}
+
+#[test]
+fn test_sltiu_one() {
+    run_program_and_check_output("./program_artifacts/asm/sltiu_one.elf", 1);
+}
+
+#[test]
+fn test_sltiu_negative() {
+    run_program_and_check_output("./program_artifacts/asm/sltiu_negative.elf", 0);
+}
+
+#[test]
+fn test_sltiu_two_negatives() {
+    run_program_and_check_output("./program_artifacts/asm/sltiu_two_negatives.elf", 1);
+}
+
