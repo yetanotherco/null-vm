@@ -12,9 +12,9 @@ RUST_PROGRAM_DIRS := $(dir $(wildcard $(RUST_PROGRAMS_DIR)/*/Cargo.toml))
 RUST_PROGRAMS := $(notdir $(basename $(RUST_PROGRAM_DIRS:%/=%)))
 RUST_ARTIFACTS := $(addprefix $(RUST_ARTIFACTS_DIR)/, $(addsuffix .elf, $(RUST_PROGRAMS)))
 
-compile-programs-asm: clean $(ARTIFACTS_ASM)
+compile-programs-asm: clean-asm $(ARTIFACTS_ASM)
 
-compile-programs-rust: clean $(RUST_ARTIFACTS)
+compile-programs-rust: clean-rust $(RUST_ARTIFACTS)
 
 compile-programs: compile-programs-asm compile-programs-rust
 
@@ -36,11 +36,15 @@ $(RUST_ARTIFACTS_DIR)/%.elf: $(RUST_PROGRAMS_DIR)/%/Cargo.toml
 	cp $(RUST_PROGRAMS_DIR)/$*/target/riscv32im-unknown-none-elf/debug/$* $@
 	rm -rf $(RUST_PROGRAMS_DIR)/$*/target
 
-clean:
+clean-asm:
 	-rm -rf $(ASM_ARTIFACTS_DIR)
 	mkdir -p $(ASM_ARTIFACTS_DIR)
+
+clean-rust:
 	-rm -rf $(RUST_ARTIFACTS_DIR)
 	mkdir -p $(RUST_ARTIFACTS_DIR)
+
+clean: clean-asm clean-rust
 
 test: compile-programs test-no-compile
 
