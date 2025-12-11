@@ -15,10 +15,7 @@ fn run_program_and_check_output(elf_path: &str, expected_output: i32) {
 
 #[test]
 fn test_basic_program() {
-    run_program_and_check_output(
-        "./program_artifacts/asm/basic_program.elf",
-        0,
-    );
+    run_program_and_check_output("./program_artifacts/asm/basic_program.elf", 0);
 }
 
 #[test]
@@ -54,6 +51,11 @@ fn test_addi_reg_max() {
 #[test]
 fn test_addi_reg_min() {
     run_program_and_check_output("./program_artifacts/asm/addi_reg_min.elf", -2070);
+}
+
+#[test]
+fn test_addi_255() {
+    run_program_and_check_output("./program_artifacts/asm/addi_255.elf", 255);
 }
 
 #[test]
@@ -146,7 +148,6 @@ fn test_ori_max() {
     run_program_and_check_output("./program_artifacts/asm/ori_max.elf", 0xFFFFFFFFu32 as i32);
 }
 
-
 #[test]
 fn test_xori() {
     run_program_and_check_output("./program_artifacts/asm/xori.elf", 0x00);
@@ -217,3 +218,42 @@ fn test_sltiu_two_negatives() {
     run_program_and_check_output("./program_artifacts/asm/sltiu_two_negatives.elf", 1);
 }
 
+#[test]
+fn test_slli() {
+    run_program_and_check_output("./program_artifacts/asm/slli.elf", 0);
+}
+
+#[test]
+fn test_slli_one() {
+    run_program_and_check_output("./program_artifacts/asm/slli_one.elf", 0);
+}
+
+#[test]
+fn test_slli_one_one() {
+    run_program_and_check_output("./program_artifacts/asm/slli_one_one.elf", 2);
+}
+
+#[test]
+fn test_slli_one_zero() {
+    run_program_and_check_output("./program_artifacts/asm/slli_one_zero.elf", 1);
+}
+
+#[test]
+fn test_slli_ff_four() {
+    run_program_and_check_output("./program_artifacts/asm/slli_ff_four.elf", 0xFF0);
+}
+
+#[test]
+fn test_slli_max() {
+    run_program_and_check_output("./program_artifacts/asm/slli_max.elf", 0xFFFFFFF0u32 as i32);
+}
+
+#[test]
+fn test_slli_max_half() {
+    run_program_and_check_output("./program_artifacts/asm/slli_max_half.elf", 0xFFFF8000u32 as i32);
+}
+
+#[test]
+fn test_slli_max_max() {
+    run_program_and_check_output("./program_artifacts/asm/slli_max_max.elf", 0x80000000u32 as i32);
+}

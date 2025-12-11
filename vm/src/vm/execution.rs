@@ -74,6 +74,8 @@ fn run_instruction(
     pc: &mut u32,
     memory: &mut Memory,
 ) {
+    println!("registers: {:?}", &registers);
+    println!("Executing instruction at 0x{:08x}: {:?}", pc.clone(), inst);
     *pc += 4;
     match inst {
         Instruction::ArithImm { dst, src, imm, op } => {
