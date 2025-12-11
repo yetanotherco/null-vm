@@ -42,11 +42,13 @@ clean:
 	-rm -rf $(RUST_ARTIFACTS_DIR)
 	mkdir -p $(RUST_ARTIFACTS_DIR)
 
-test: compile-programs
-	cargo test
+test: compile-programs test-no-compile
 
 test-asm: compile-programs-asm
 	cargo test --test asm
 
 test-rust: compile-programs-rust
 	cargo test --test rust
+
+test-no-compile:
+	cargo test
