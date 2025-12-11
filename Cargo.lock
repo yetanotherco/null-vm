@@ -210,7 +210,7 @@ dependencies = [
 [[package]]
 name = "lambdaworks-crypto"
 version = "0.13.0"
-source = "git+https://github.com/lambdaclass/lambdaworks.git#fade1668e234e575138056df99a96469e2f3d0dd"
+source = "git+https://github.com/lambdaclass/lambdaworks.git#e17bcc29450cdd6d908e82ca998b20823253722a"
 dependencies = [
  "digest",
  "lambdaworks-math",
@@ -224,7 +224,7 @@ dependencies = [
 [[package]]
 name = "lambdaworks-math"
 version = "0.13.0"
-source = "git+https://github.com/lambdaclass/lambdaworks.git#fade1668e234e575138056df99a96469e2f3d0dd"
+source = "git+https://github.com/lambdaclass/lambdaworks.git#e17bcc29450cdd6d908e82ca998b20823253722a"
 dependencies = [
  "getrandom",
  "num-bigint",
@@ -471,7 +471,7 @@ dependencies = [
 [[package]]
 name = "stark-platinum-prover"
 version = "0.13.0"
-source = "git+https://github.com/lambdaclass/lambdaworks.git#fade1668e234e575138056df99a96469e2f3d0dd"
+source = "git+https://github.com/lambdaclass/lambdaworks.git#e17bcc29450cdd6d908e82ca998b20823253722a"
 dependencies = [
  "bincode",
  "itertools",

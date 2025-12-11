@@ -311,10 +311,10 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                 let inverse = FieldElement::<Degree4BabyBearU32ExtensionField>::from(65536)
                     .inv()
                     .unwrap();
-                let carry_0 = (lhs_0 + rhs_0 - res_0) * inverse.clone();
+                let carry_0 = (lhs_0 + rhs_0 - res_0) * inverse;
 
                 let bit_contraint = match self.carry_idx {
-                    CarryIndex::Zero => flag * carry_0.clone() * (carry_0.clone() - one),
+                    CarryIndex::Zero => flag * carry_0 * (carry_0 - one),
                     CarryIndex::One => {
                         let lhs_1 = step.get_main_evaluation_element(0, self.lhs_start_idx + 2)
                             + two_fifty_six
@@ -326,7 +326,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                             + two_fifty_six
                                 * step.get_main_evaluation_element(0, self.res_start_idx + 3);
                         let carry_1 = (lhs_1 + rhs_1 - res_1 + carry_0) * inverse;
-                        flag * carry_1.clone() * (carry_1 - one)
+                        flag * carry_1 * (carry_1 - one)
                     }
                 };
 
