@@ -5,7 +5,7 @@ use std::{
 
 use crate::vm::instructions::{ArithOp, Comparison, Instruction, LoadStoreWidth};
 
-pub fn run_program(instruction_map: BTreeMap<u32, u32>, entrypoint: u32) -> (u32, u32) {
+pub fn run_program(instruction_map: BTreeMap<u32, u32>, entrypoint: u32) -> (i32, i32) {
     let mut memory = Memory::default();
     load_program(instruction_map, &mut memory);
     run_from_entrypoint(&mut memory, entrypoint)
@@ -17,16 +17,17 @@ fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
     }
 }
 
-fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (u32, u32) {
+fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (i32, i32) {
     let mut pc = entrypoint;
     let mut registers = Registers::default();
+    registers.0[2] = 0xFFFFFFFF; // 4GB
     while pc != registers.0[1] {
         let next_instruction = memory.0[&pc];
         let instruction = Instruction::parse(next_instruction);
         run_instruction(&instruction, &mut registers, &mut pc, memory);
     }
     println!("Final Register Values:\n {}", &registers);
-    let return_values = (registers.0[10], registers.0[11]);
+    let return_values = (registers.0[10] as i32, registers.0[11] as i32);
     println!("Return Values: {return_values:?}");
     return_values
 }
@@ -45,6 +46,7 @@ struct Registers([u32; 32]);
 impl Display for Registers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "Registers:")?;
+        writeln!(f, "Zero(zero): {}", self.0[0])?;
         writeln!(f, "ReturnAddress(ra): {}", self.0[1])?;
         writeln!(f, "StackPointer(sp): {}", self.0[2])?;
         // Not used for now
@@ -74,20 +76,33 @@ fn run_instruction(
     *pc += 4;
     match inst {
         Instruction::ArithImm { dst, src, imm, op } => {
-            let (a, b) = (registers.0[*src as usize], imm);
+            let (a, b) = (registers.0[*src as usize] as i32, *imm);
             let res = match op {
                 ArithOp::Add => a + b,
-                _ => unimplemented!(),
+                ArithOp::Sub => panic!("SubImm not supported"),
+                ArithOp::Xor => a ^ b,
+                ArithOp::Or => a | b,
+                ArithOp::And => a & b,
+                ArithOp::ShiftLeftLogical => a << b,
+                ArithOp::ShiftRightLogical => a >> b,
+                ArithOp::ShiftRightArith => a >> b,
+                ArithOp::SetLessThan => (a < b) as i32,
+                ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
             };
-            registers.0[*dst as usize] = res;
+            registers.0[*dst as usize] = res as u32;
         }
         Instruction::JumpAndLinkRegister { dst, base, offset } => {
-            registers.0[*dst as usize] = *pc;
-            *pc = registers.0[*base as usize] + offset;
+            if *dst != 0 {
+                registers.0[*dst as usize] = *pc;
+            }
+            *pc = (registers.0[*base as usize] as i32 + offset) as u32;
         }
         Instruction::JumpAndLink { dst, offset } => {
-            registers.0[*dst as usize] = *pc;
-            *pc += offset;
+            if *dst != 0 {
+                registers.0[*dst as usize] = *pc;
+            }
+            *pc -= 4;
+            *pc = (*pc as i32 + offset) as u32;
         }
         Instruction::Store {
             src,
@@ -101,7 +116,9 @@ fn run_instruction(
                 LoadStoreWidth::Half => todo!(),
                 LoadStoreWidth::Word => value,
             };
-            memory.0.insert(*base + *offset, value);
+            memory
+                .0
+                .insert(registers.0[*base as usize] + *offset, value);
         }
         Instruction::Load {
             dst,
@@ -109,7 +126,7 @@ fn run_instruction(
             base,
             width,
         } => {
-            let value = memory.0[&(*base + *offset)];
+            let value = memory.0[&((registers.0[*base as usize] as i32 + *offset) as u32)];
             let value = match width {
                 LoadStoreWidth::Byte => todo!(),
                 LoadStoreWidth::Half => todo!(),
