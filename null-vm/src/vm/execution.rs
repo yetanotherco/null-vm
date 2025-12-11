@@ -79,7 +79,7 @@ fn run_instruction(
         Instruction::ArithImm { dst, src, imm, op } => {
             let (a, b) = (registers.0[*src as usize], *imm);
             let res = match op {
-                ArithOp::Add => a + b,
+                ArithOp::Add => a.wrapping_add(b),
                 ArithOp::Sub => panic!("SubImm not supported"),
                 ArithOp::Xor => a ^ b,
                 ArithOp::Or => a | b,
@@ -151,6 +151,22 @@ fn run_instruction(
             if cmp_result {
                 *pc += offset
             }
+        }
+        Instruction::Arith { dst, src1, src2, op } => {
+            let (a, b) = (registers.0[*src1 as usize], registers.0[*src2 as usize]);
+            let res = match op {
+                ArithOp::Add => a.wrapping_add(b),
+                ArithOp::Sub => a - b,
+                ArithOp::Xor => a ^ b,
+                ArithOp::Or => a | b,
+                ArithOp::And => a & b,
+                ArithOp::ShiftLeftLogical => a << b,
+                ArithOp::ShiftRightLogical => ((a as u32) >> (b as u32)) as i32,
+                ArithOp::ShiftRightArith => a >> b,
+                ArithOp::SetLessThan => (a < b) as i32,
+                ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
+            };
+            registers.0[*dst as usize] = res;
         }
         _ => unimplemented!(),
     }
