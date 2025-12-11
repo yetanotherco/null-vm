@@ -147,3 +147,27 @@ fn test_ori_max() {
 }
 
 
+#[test]
+fn test_xori() {
+    run_program_and_check_output("./program_artifacts/asm/xori.elf", 0x00);
+}
+
+#[test]
+fn test_xori_one() {
+    run_program_and_check_output("./program_artifacts/asm/xori_one.elf", 0x01);
+}
+
+#[test]
+fn test_xori_one_and_one() {
+    run_program_and_check_output("./program_artifacts/asm/xori_one_and_one.elf", 0x00);
+}
+
+#[test]
+fn test_xori_max() {
+    run_program_and_check_output("./program_artifacts/asm/xori_max.elf", 0xFFFFFFFFu32 as i32);
+}
+
+#[test]
+fn test_xori_negate() {
+    run_program_and_check_output("./program_artifacts/asm/xori_negate.elf", 0x01);
+}
