@@ -85,3 +85,28 @@ fn test_add_min() {
 fn test_add_min_minus_one() {
     run_program_and_check_output("./program_artifacts/asm/add_min_minus_one.elf", i32::MAX);
 }
+
+#[test]
+fn test_andi() {
+    run_program_and_check_output("./program_artifacts/asm/andi.elf", 0x00);
+}
+
+#[test]
+fn test_andi_one() {
+    run_program_and_check_output("./program_artifacts/asm/andi_one.elf", 0x01);
+}
+
+#[test]
+fn test_andi_one_and_zero() {
+    run_program_and_check_output("./program_artifacts/asm/andi_one_and_zero.elf", 0x00);
+}
+
+#[test]
+fn test_andi_one_and_two() {
+    run_program_and_check_output("./program_artifacts/asm/andi_one_and_two.elf", 0x00);
+}
+
+#[test]
+fn test_andi_max() {
+    run_program_and_check_output("./program_artifacts/asm/andi_max.elf", 0xFFFFFFFFu32 as i32);
+}
