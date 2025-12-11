@@ -7,7 +7,6 @@ const BRANCH_OPCODE: u32 = 0b1100011;
 const JUMP_AND_LINK_REGISTER_OPCCODE: u32 = 0b1100111;
 const JUMP_AND_LINK_OPCCODE: u32 = 0b1101111;
 
-// TODO: consider using num_enum dep to replace TyFrom/ using the constants here
 enum Opcode {
     Arith,
     ArithImm,
@@ -150,6 +149,8 @@ const FUNC3_MASK: u32 = 0x00007000;
 const RS1_MASK: u32 = 0x000f8000;
 const RS2_MASK: u32 = 0x01f00000;
 const RD_MASK: u32 = 0x00000f80;
+const SIGN_MASK: u32 = 0x80000000;
+const I_TYPE_IMM_MASK: u32 = 0x7ff;
 
 impl Instruction {
     pub fn parse(instruction: u32) -> Instruction {
@@ -233,8 +234,8 @@ const SLTU_FUNC_IDENTIFIER: u32 = 0x3;
 fn parse_i_instruction(instruction: u32, opcode: Opcode) -> Instruction {
     let func3 = (instruction & FUNC3_MASK) >> 12;
     let rs1 = (instruction & RS1_MASK) >> 15;
-    let imm = ((instruction >> 20) & 0x7ff) as i32;
-    let mut imm: i32 = if (instruction & 0x8000_0000) != 0 {
+    let imm = ((instruction >> 20) & I_TYPE_IMM_MASK) as i32;
+    let mut imm: i32 = if (instruction & SIGN_MASK) != 0 {
         imm - (1 << 11)
     } else {
         imm
@@ -357,7 +358,7 @@ fn parse_b_instruction(instruction: u32, opcode: Opcode) -> Instruction {
 fn parse_j_instruction(instruction: u32, opcode: Opcode) -> Instruction {
     let imm =
         instruction & 0xff000 | ((instruction & 0x100000) >> 9) | ((instruction >> 20) & 0x7fe);
-    let imm: i32 = if (instruction & 0x8000_0000) != 0 {
+    let imm: i32 = if (instruction & SIGN_MASK) != 0 {
         imm as i32 - (1 << 20)
     } else {
         imm as i32
