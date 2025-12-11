@@ -221,6 +221,10 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
     /// This ensures that when the instruction flag is active (flag = 1), the computed
     /// carry bit must be binary (0 or 1). When the flag is inactive (flag = 0),
     /// the constraint is trivially satisfied regardless of carry value.
+    ///
+    /// This method is called during both by the Prover and Verifier.
+    /// Prover to work with base field elements while the verifier
+    /// operates in a larger extension field.
     fn evaluate(
         &self,
         evaluation_context: &TransitionEvaluationContext<
