@@ -40,7 +40,7 @@ enum InstructionFormat {
     I,
     S,
     B,
-    U,
+    _U,
     J,
 }
 
@@ -54,7 +54,6 @@ impl Opcode {
             &Opcode::Store => InstructionFormat::S,
             &Opcode::Branch => InstructionFormat::B,
             &Opcode::JumpAndLink => InstructionFormat::J,
-            _ => unimplemented!(),
         }
     }
 }
