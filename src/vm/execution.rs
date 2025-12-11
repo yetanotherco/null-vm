@@ -20,8 +20,7 @@ fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
 fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (i32, i32) {
     let mut pc = entrypoint;
     let mut registers = Registers::default();
-    // TODO: find what the starting value should be
-    registers.0[2] = 16;
+    registers.0[2] = 0xFFFFFFFF; // 4GB
     while pc != registers.0[1] {
         let next_instruction = memory.0[&pc] as u32;
         let instruction = Instruction::parse(next_instruction);
