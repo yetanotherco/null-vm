@@ -1,9 +1,8 @@
 use null_vm::{elf::Elf, vm::execution::run_program};
 
-#[test]
-fn test_basic_program() {
-    println!("Testing basic_program.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/basic_program.elf").unwrap();
+fn run_program_and_check_output(elf_path: &str, expected_output: i32) {
+    println!("Testing {}", elf_path);
+    let elf_data = std::fs::read(elf_path).unwrap();
     let program = Elf::load(&elf_data).unwrap();
     println!("Program entry: 0x{:08x}", program.entry_point);
     program.image.iter().for_each(|(addr, word)| {
@@ -11,187 +10,78 @@ fn test_basic_program() {
     });
     let results = run_program(program.image, program.entry_point);
 
-    assert!(results.0 == 0);
+    assert!(results.0 == expected_output);
+}
+
+#[test]
+fn test_basic_program() {
+    run_program_and_check_output(
+        "./program_artifacts/asm/basic_program.elf",
+        0,
+    );
 }
 
 #[test]
 fn test_addi_one() {
-    println!("Testing addi_one.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/addi_one.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == 1);
+    run_program_and_check_output("./program_artifacts/asm/addi_one.elf", 1);
 }
 
 #[test]
 fn test_addi_minus_one() {
-    println!("Testing addi_minus_one.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/addi_minus_one.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == -1);
+    run_program_and_check_output("./program_artifacts/asm/addi_minus_one.elf", -1);
 }
 
 #[test]
 fn test_addi_max() {
-    println!("Testing addi_max.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/addi_max.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == 2047);
+    run_program_and_check_output("./program_artifacts/asm/addi_max.elf", 2047);
 }
 
 #[test]
 fn test_addi_min() {
-    println!("Testing addi_min.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/addi_min.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == -2048);
+    run_program_and_check_output("./program_artifacts/asm/addi_min.elf", -2048);
 }
 
 #[test]
 fn test_addi_reg() {
-    println!("Testing addi_reg.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/addi_reg.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == 30);
+    run_program_and_check_output("./program_artifacts/asm/addi_reg.elf", 30);
 }
 
 #[test]
 fn test_addi_reg_max() {
-    println!("Testing addi_reg_max.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/addi_reg_max.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == 2080);
+    run_program_and_check_output("./program_artifacts/asm/addi_reg_max.elf", 2080);
 }
 
 #[test]
 fn test_addi_reg_min() {
-    println!("Testing addi_reg_min.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/addi_reg_min.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == -2070);
+    run_program_and_check_output("./program_artifacts/asm/addi_reg_min.elf", -2070);
 }
 
 #[test]
 fn test_add() {
-    println!("Testing add.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/add.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == 30);
+    run_program_and_check_output("./program_artifacts/asm/add.elf", 30);
 }
 
 #[test]
 fn test_add_neg() {
-    println!("Testing add_neg.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/add_neg.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == 10);
+    run_program_and_check_output("./program_artifacts/asm/add_neg.elf", 10);
 }
 
 #[test]
 fn test_add_max() {
-    println!("Testing add_max.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/add_max.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == i32::MAX);
+    run_program_and_check_output("./program_artifacts/asm/add_max.elf", i32::MAX);
 }
 
 #[test]
 fn test_add_max_plus_one() {
-    println!("Testing add_plus_one.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/add_max_plus_one.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == i32::MIN);
+    run_program_and_check_output("./program_artifacts/asm/add_max_plus_one.elf", i32::MIN);
 }
 
 #[test]
 fn test_add_min() {
-    println!("Testing add_min.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/add_min.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == i32::MIN);
+    run_program_and_check_output("./program_artifacts/asm/add_min.elf", i32::MIN);
 }
 
 #[test]
 fn test_add_min_minus_one() {
-    println!("Testing add_min_minus_one.elf");
-    let elf_data = std::fs::read("./program_artifacts/asm/add_min_minus_one.elf").unwrap();
-    let program = Elf::load(&elf_data).unwrap();
-    println!("Program entry: 0x{:08x}", program.entry_point);
-    program.image.iter().for_each(|(addr, word)| {
-        println!("0x{:08x}: 0x{:08x}", addr, word);
-    });
-    let results = run_program(program.image, program.entry_point);
-
-    assert!(results.0 == i32::MAX);
+    run_program_and_check_output("./program_artifacts/asm/add_min_minus_one.elf", i32::MAX);
 }
