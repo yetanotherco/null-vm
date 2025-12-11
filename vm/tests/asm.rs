@@ -110,3 +110,40 @@ fn test_andi_one_and_two() {
 fn test_andi_max() {
     run_program_and_check_output("./program_artifacts/asm/andi_max.elf", 0xFFFFFFFFu32 as i32);
 }
+
+#[test]
+fn test_ori() {
+    run_program_and_check_output("./program_artifacts/asm/ori.elf", 0x00);
+}
+
+#[test]
+fn test_ori_one() {
+    run_program_and_check_output("./program_artifacts/asm/ori_one.elf", 0x01);
+}
+
+#[test]
+fn test_ori_one_and_one() {
+    run_program_and_check_output("./program_artifacts/asm/ori_one_and_one.elf", 0x01);
+}
+
+#[test]
+fn test_ori_two_and_one() {
+    run_program_and_check_output("./program_artifacts/asm/ori_two_and_one.elf", 0x03);
+}
+
+#[test]
+fn test_ori_five_and_four() {
+    run_program_and_check_output("./program_artifacts/asm/ori_five_and_four.elf", 0x05);
+}
+
+#[test]
+fn test_ori_three_and_five() {
+    run_program_and_check_output("./program_artifacts/asm/ori_three_and_five.elf", 0x07);
+}
+
+#[test]
+fn test_ori_max() {
+    run_program_and_check_output("./program_artifacts/asm/ori_max.elf", 0xFFFFFFFFu32 as i32);
+}
+
+
