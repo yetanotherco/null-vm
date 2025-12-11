@@ -6,6 +6,8 @@ Non-null name TBD
 
 We are developing an open-source verifiable virtual machine that allows users to prove the correctness of the execution of a given program with an input stream.
 
+Right now, this is a project under development and experimentation and should not be used in production!
+
 ## Design choices
 
 - The Instruction Set Architecture is RISCV64IM
@@ -16,8 +18,15 @@ We are developing an open-source verifiable virtual machine that allows users to
 ## Design principles
 
 Following [ethrex](https://github.com/lambdaclass/ethrex):
-- Have a simple type system. Avoid
+- Ensure effortless setup and execution across all target environments.
+- Be vertically integrated. Have the minimal amount of dependencies.
+- Have a simple type system. Avoid generics leaking over the codebase.
+- Have few abstractions. Do not generalize until you absolutely need it. Repeating code two or three times can be fine.
+- Prioritize code readability and maintainability over premature optimizations.
 
+## Roadmap
+
+## Documentation
 
 ## Testing
 
@@ -60,6 +69,7 @@ This project would not be possible without the contributions made by various tea
 - [AirBender](https://github.com/matter-labs/zksync-airbender)
 - [Constantine](https://github.com/mratsim/constantine)
 - [Jolt](https://github.com/a16z/jolt)
-- [Neptune]()
+- [Neptune - TritonVM](https://github.com/TritonVM/triton-vm)
 - [Winterfell](https://github.com/facebook/winterfell)
 - [Stwo](https://github.com/starkware-libs/stwo)
+- [Aztec](https://github.com/AztecProtocol)
