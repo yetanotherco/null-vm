@@ -86,7 +86,7 @@ fn run_instruction(
                 ArithOp::Or => a | b,
                 ArithOp::And => a & b,
                 ArithOp::ShiftLeftLogical => a << b,
-                ArithOp::ShiftRightLogical => a >> b,
+                ArithOp::ShiftRightLogical => ((a as u32) >> (b as u32)) as i32,
                 ArithOp::ShiftRightArith => a >> b,
                 ArithOp::SetLessThan => (a < b) as i32,
                 ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,

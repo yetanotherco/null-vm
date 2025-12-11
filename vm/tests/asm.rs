@@ -263,3 +263,41 @@ fn test_slli_max_max() {
         0x80000000u32 as i32,
     );
 }
+
+#[test]
+fn test_srli() {
+    run_program_and_check_output("./program_artifacts/asm/srli.elf", 0);
+}
+
+#[test]
+fn test_srli_one() {
+    run_program_and_check_output("./program_artifacts/asm/srli_one.elf", 0);
+}
+
+#[test]
+fn test_srli_one_zero() {
+    run_program_and_check_output("./program_artifacts/asm/srli_one_zero.elf", 1);
+}
+
+#[test]
+fn test_srli_one_one() {
+    run_program_and_check_output("./program_artifacts/asm/srli_one_one.elf", 0);
+}
+
+#[test]
+fn test_srli_two_one() {
+    run_program_and_check_output("./program_artifacts/asm/srli_two_one.elf", 1);
+}
+
+#[test]
+fn test_srli_max() {
+    run_program_and_check_output("./program_artifacts/asm/srli_max.elf", 0x0FFFFFFFu32 as i32);
+}
+
+#[test]
+fn test_srli_max_max() {
+    run_program_and_check_output(
+        "./program_artifacts/asm/srli_max_max.elf",
+        0x00000001,
+    );
+}
