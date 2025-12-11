@@ -8,12 +8,18 @@ use stark_platinum_prover::{
     constraints::transition::TransitionConstraint, traits::TransitionEvaluationContext,
 };
 
+/// Enforces that a specific trace column contains only binary values (0 or 1).
+/// For a trace value `x` in the specified column, the constraint enforces:
+/// x * (x - 1) = 0
 pub struct BitConstraint {
     column_idx: usize,
     constraint_idx: usize,
 }
 
 impl BitConstraint {
+    /// Creates a new binary constraint for the specified column.
+    /// * `column_idx` - The trace column index that must contain only 0 or 1
+    /// * `constraint_idx` - Unique constraint identifier used by the STARK prover
     pub fn new(column_idx: usize, constraint_idx: usize) -> Self {
         Self {
             column_idx,
@@ -45,6 +51,11 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
         0
     }
 
+    /// Evaluates the bit constraint: `flag * (flag - 1) = 0`
+    ///
+    /// This method is called during both by the Prover and Verifier.
+    /// Prover to work with base field elements while the verifier
+    /// operates in a larger extension field.
     fn evaluate(
         &self,
         evaluation_context: &TransitionEvaluationContext<
@@ -60,13 +71,9 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                 rap_challenges: _rap_challenges,
             } => {
                 let step = frame.get_evaluation_step(0);
-
                 let flag = step.get_main_evaluation_element(0, self.column_idx);
-
                 let one = FieldElement::<Babybear31PrimeField>::one();
-
                 let bit_constraint = flag * (flag - one);
-
                 transition_evaluations[self.constraint_idx()] = bit_constraint.to_extension();
             }
 
@@ -76,19 +83,23 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                 rap_challenges: _rap_challenges,
             } => {
                 let step = frame.get_evaluation_step(0);
-
                 let flag = step.get_main_evaluation_element(0, self.column_idx);
-
                 let one = FieldElement::<Degree4BabyBearU32ExtensionField>::one();
-
                 let bit_constraint = flag * (flag - one);
-
                 transition_evaluations[self.constraint_idx()] = bit_constraint;
             }
         }
     }
 }
 
+/// Helper function to create multiple bit constraints for different columns.
+///
+/// # Arguments
+/// * `column_idx` - Slice of column indices to constrain
+/// * `constraint_idx_start` - Starting index for constraint numbering (sequential from here)
+///
+/// # Returns
+/// A vector of boxed `BitConstraint` trait objects, one for each specified column.
 pub fn new_bit_constraints(
     column_idx: &[usize],
     constraint_idx_start: usize,
@@ -108,12 +119,41 @@ pub fn new_bit_constraints(
         .collect()
 }
 
+/// Identifies which carry bit (from a two-word addition) to constrain.
+///
+/// A 32-bit addition is split into two 16-bit word additions:
+/// - **Carry 0**: The carry out of the low word (bits 0-15)
+/// - **Carry 1**: The carry out of the high word (bits 16-31), which includes carry_0 as input
 #[derive(Clone)]
 pub enum CarryIndex {
     Zero,
     One,
 }
 
+/// Enforces correct carry bit values in multi-limb addition operations.
+///
+/// For 32-bit addition split into two 16-bit words (each composed of two 8-bit limbs):
+///
+/// Carry 0:
+/// lhs_0 = lhs[0] + 256 * lhs[1]
+/// rhs_0 = rhs[0] + 256 * rhs[1]
+/// res_0 = res[0] + 256 * res[1]
+///
+/// carry_0 = (lhs_0 + rhs_0 - res_0) / 65536
+/// constraint: carry_0 * (carry_0 - 1) = 0
+///
+/// Carry 1:
+/// lhs_1 = lhs[2] + 256 * lhs[3]
+/// rhs_1 = rhs[2] + 256 * rhs[3]
+/// res_1 = res[2] + 256 * res[3]
+///
+/// carry_1 = (lhs_1 + rhs_1 - res_1 + carry_0) / 65536
+/// constraint: flag * carry_1 * (carry_1 - 1) = 0
+///
+/// The `flag` factor allows selective activation: the constraint is only enforced when one
+/// flag column is active. (No more than 1 flag can be active at the same time)
+///
+/// Constraint Degree 3 (cubic), due to the multiplication of three terms: `flag * carry * (carry - 1)`.
 #[derive(Clone)]
 pub struct CarryBitConstraint {
     carry_idx: CarryIndex,
@@ -125,6 +165,15 @@ pub struct CarryBitConstraint {
 }
 
 impl CarryBitConstraint {
+    /// Creates a new carry bit constraint.
+    ///
+    /// # Arguments
+    /// * `carry_idx` - Which carry to constrain (Zero or One)
+    /// * `flags_idx` - Columns containing activation flags
+    /// * `lhs_start_idx` - Starting column index for left operand's 4 limbs
+    /// * `rhs_start_idx` - Starting column index for right operand's 4 limbs
+    /// * `res_start_idx` - Starting column index for result's 4 limbs
+    /// * `constraint_idx` - Unique constraint identifier
     fn new(
         carry_idx: CarryIndex,
         flags_idx: Vec<usize>,
@@ -167,6 +216,15 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
         0
     }
 
+    /// Evaluates the carry bit constraint: `flag * carry * (carry - 1) = 0`
+    ///
+    /// This ensures that when the instruction flag is active (flag = 1), the computed
+    /// carry bit must be binary (0 or 1). When the flag is inactive (flag = 0),
+    /// the constraint is trivially satisfied regardless of carry value.
+    ///
+    /// This method is called during both by the Prover and Verifier.
+    /// Prover to work with base field elements while the verifier
+    /// operates in a larger extension field.
     fn evaluate(
         &self,
         evaluation_context: &TransitionEvaluationContext<
@@ -185,6 +243,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
 
                 let two_fifty_six = FieldElement::<Babybear31PrimeField>::from(256);
 
+                // Sum all activation flags
                 let flag = self
                     .flags_idx
                     .iter()
@@ -192,6 +251,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                         acc + step.get_main_evaluation_element(0, idx)
                     });
 
+                // Compute the low word using the first 2 operand limbs.
                 let lhs_0 = step.get_main_evaluation_element(0, self.lhs_start_idx)
                     + two_fifty_six * step.get_main_evaluation_element(0, self.lhs_start_idx + 1);
                 let rhs_0 = step.get_main_evaluation_element(0, self.rhs_start_idx)
@@ -208,6 +268,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                 let bit_contraint: FieldElement<Babybear31PrimeField> = match self.carry_idx {
                     CarryIndex::Zero => flag * carry_0 * (carry_0 - one),
                     CarryIndex::One => {
+                        // Compute the high word using the first 2 operand limbs.
                         let lhs_1 = step.get_main_evaluation_element(0, self.lhs_start_idx + 2)
                             + two_fifty_six
                                 * step.get_main_evaluation_element(0, self.lhs_start_idx + 3);
@@ -250,10 +311,10 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                 let inverse = FieldElement::<Degree4BabyBearU32ExtensionField>::from(65536)
                     .inv()
                     .unwrap();
-                let carry_0 = (lhs_0 + rhs_0 - res_0) * inverse.clone();
+                let carry_0 = (lhs_0 + rhs_0 - res_0) * inverse;
 
                 let bit_contraint = match self.carry_idx {
-                    CarryIndex::Zero => flag * carry_0.clone() * (carry_0.clone() - one),
+                    CarryIndex::Zero => flag * carry_0 * (carry_0 - one),
                     CarryIndex::One => {
                         let lhs_1 = step.get_main_evaluation_element(0, self.lhs_start_idx + 2)
                             + two_fifty_six
@@ -265,7 +326,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                             + two_fifty_six
                                 * step.get_main_evaluation_element(0, self.res_start_idx + 3);
                         let carry_1 = (lhs_1 + rhs_1 - res_1 + carry_0) * inverse;
-                        flag * carry_1.clone() * (carry_1 - one)
+                        flag * carry_1 * (carry_1 - one)
                     }
                 };
 
@@ -275,6 +336,23 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
     }
 }
 
+/// Creates a pair of carry bit constraints for a complete 32-bit addition operation.
+///
+/// A full 32-bit addition with 8-bit limb decomposition requires validating two carry bits:
+/// - Carry from the low word (bits 0-15)
+/// - Carry from the high word (bits 16-31)
+///
+/// This helper function creates both constraints with sequential constraint indices.
+///
+/// ## Arguments
+/// * `flags_idx` - Column indices for instruction selector flags
+/// * `lhs_start_idx` - Starting column for left operand (requires 4 consecutive columns)
+/// * `rhs_start_idx` - Starting column for right operand (requires 4 consecutive columns)
+/// * `res_start_idx` - Starting column for result (requires 4 consecutive columns)
+/// * `constraint_idx_start` - Starting constraint index (will use idx and idx+1)
+///
+/// ## Returns
+/// A vector of two boxed constraints: [carry_0_constraint, carry_1_constraint]
 pub fn new_add_constraint(
     flags_idx: Vec<usize>,
     lhs_start_idx: usize,
