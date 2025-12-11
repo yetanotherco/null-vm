@@ -27,7 +27,7 @@ fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (i32, i32) {
         run_instruction(&instruction, &mut registers, &mut pc, memory);
     }
     println!("Final Register Values:\n {}", &registers);
-    let return_values = (registers.0[10] as i32, registers.0[11] as i32);
+    let return_values = (registers.0[10], registers.0[11]);
     println!("Return Values: {return_values:?}");
     return_values
 }
@@ -78,7 +78,7 @@ fn run_instruction(
     *pc += 4;
     match inst {
         Instruction::ArithImm { dst, src, imm, op } => {
-            let (a, b) = (registers.0[*src as usize] as i32, *imm);
+            let (a, b) = (registers.0[*src as usize], *imm);
             let res = match op {
                 ArithOp::Add => a.wrapping_add(b),
                 ArithOp::Sub => panic!("SubImm not supported"),
@@ -97,7 +97,7 @@ fn run_instruction(
             if *dst != 0 {
                 registers.0[*dst as usize] = *pc as i32;
             }
-            *pc = (registers.0[*base as usize] as i32 + offset) as u32;
+            *pc = (registers.0[*base as usize] + offset) as u32;
         }
         Instruction::JumpAndLink { dst, offset } => {
             if *dst != 0 {
@@ -128,7 +128,7 @@ fn run_instruction(
             base,
             width,
         } => {
-            let value = memory.0[&((registers.0[*base as usize] as i32 + *offset) as u32)];
+            let value = memory.0[&((registers.0[*base as usize] + *offset) as u32)];
             let value = match width {
                 LoadStoreWidth::Byte => todo!(),
                 LoadStoreWidth::Half => todo!(),
