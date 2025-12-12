@@ -18,6 +18,11 @@ type FE = FieldElement<Babybear31PrimeField>;
 
 type CPUTraceTable = TraceTable<Babybear31PrimeField, Degree4BabyBearU32ExtensionField>;
 
+/// AIR for the `CPU` trace.
+///
+/// Enforces two types of constraints:
+/// - **Bit constraints**: selected columns must be binary.
+/// - **32-bit add constraint** (limb-decomposed): enforces `lhs + rhs = res` when the ADD instruction is executed
 pub struct CPUTableAIR {
     context: AirContext,
     constraints:
@@ -37,15 +42,19 @@ impl AIR for CPUTableAIR {
         _pub_inputs: &Self::PublicInputs,
         proof_options: &ProofOptions,
     ) -> Self {
-        // Constraint IS_BIT[f[i]] where:
-        // f = [write_register, memory_2bytes, memory_4bytes, signed, signed2, muldiv_selector, ADD, SUB, SLT, AND, OR, XOR, SL, SR, JALR, BEQ, BLT, LOAD, STORE, MUL, DIVREM, ECALL, EBREAK]
+        // Bit constraints:
+        // Enforce that these columns are binary. They include:
+        // - decode flags like `write_register`, `signed`, `mp_selector`, `muldiv_selector`
+        // - the one-hot instruction flags (ADD, SUB, ..., EBREAK)
         let bit_columns_index_to_constraint = [
             7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
         ];
         let bit_constraints = new_bit_constraints(&bit_columns_index_to_constraint, 0);
 
         let next_index = bit_columns_index_to_constraint.len();
-
+        // Add constraint
+        // Enforces that lhs (Word4L) + rhs (Word4L) = res (Word4L), with carry bits constrained.
+        // It is enforced only on rows where the selected instruction flags are active.
         let add_constraints = new_add_constraint(
             vec![15, 26, 27], // flags_idx,
             34,               // lhs_start_idx,
@@ -107,7 +116,7 @@ impl AIR for CPUTableAIR {
     }
 }
 
-// We assume that the columns have a power of two number of rows.
+// Assumption: the number of rows is a power of two
 pub fn build_cpu_trace(columns: Vec<Vec<FE>>) -> CPUTraceTable {
     TraceTable::from_columns_main(columns, 1)
 }
