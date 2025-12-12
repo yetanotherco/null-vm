@@ -97,7 +97,7 @@ fn run_instruction(
             if *dst != 0 {
                 registers.0[*dst as usize] = *pc;
             }
-            *pc = (registers.0[*base as usize] as i32 + offset) as u32;
+            *pc = ((registers.0[*base as usize] as i32 + offset) & !1) as u32;
         }
         Instruction::JumpAndLink { dst, offset } => {
             if *dst != 0 {

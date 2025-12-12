@@ -356,3 +356,28 @@ fn test_jal_prev() {
 fn test_jal_ret() {
     run_program_and_check_output("./program_artifacts/asm/jal_ret.elf", 0x0001007c);
 }
+
+#[test]
+fn test_jalr() {
+    run_program_and_check_output("./program_artifacts/asm/jalr.elf", 1);
+}
+
+#[test]
+fn test_jalr_neg() {
+    run_program_and_check_output("./program_artifacts/asm/jalr_neg.elf", 2);
+}
+
+#[test]
+fn test_jalr_ret() {
+    run_program_and_check_output("./program_artifacts/asm/jalr_ret.elf", 0x0001007c);
+}
+
+#[test]
+fn test_jalr_odd() {
+    run_program_and_check_output("./program_artifacts/asm/jalr_odd.elf", 1);
+}
+
+#[test]
+fn test_jalr_odd_reg() {
+    run_program_and_check_output("./program_artifacts/asm/jalr_odd_reg.elf", 1);
+}
