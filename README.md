@@ -11,9 +11,9 @@ Right now, this is a project under development and experimentation and must not 
 ## Design choices
 
 - The Instruction Set Architecture is RISCV64IM
-- The proof system should be transparent (no trusted setup) and post-quantum secure (hash-based)
-- The security should be 128 bits of security
-- The codebase of the whole project should be simple and minimalistic
+- The proof system is transparent (no trusted setup) and post-quantum secure (hash-based)
+- The security is over 100 bits of security
+- The codebase of the whole project must be simple and minimalistic
 
 ## Design principles
 
@@ -26,11 +26,11 @@ Following [ethrex](https://github.com/lambdaclass/ethrex):
 
 ## Roadmap
 
-This project is under active development. Our primary objective is to have a first working version for the virtual machine. The roadmap for the project can be found [here](./docs/roadmap.md).
+This project is under active development. Our primary objective is to have a first working version for the virtual machine. The first roadmap for the project can be found [here](./docs/roadmap.md). Priorities and features might change as we continue developing.
 
 ## Documentation
 
-Full documentation can be found in [docs](./docs/).
+Full documentation can be found in [docs](./docs/). It is currently a work in progress, we expect that as more features and components become ready, they will be included in the docs.
 
 ## Testing
 
