@@ -49,7 +49,14 @@ jobs:
 
       - name: Setup Rust Environment
         uses: ./.github/actions/setup-rust
+      
+      - name: Install rust nightly
+        run: rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
 
-      - name: Run tests
+      - name: Run asm tests
         run: |
-          cd vm && make test-no-compile
+          cd vm && make test-asm-no-compile
+
+      - name: Run rust tests
+        run: |
+          cd vm && make test-rust

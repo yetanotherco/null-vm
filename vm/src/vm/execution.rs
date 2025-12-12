@@ -21,7 +21,10 @@ fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> ((i32, i32), Vec
     let mut pc = entrypoint;
     let mut registers = Registers::default();
     registers.0[2] = 0xFFFFFFFFu32; // 4GB
+<<<<<<< HEAD
     let mut logs = Vec::new();
+=======
+>>>>>>> 650562e06d5dad9b81147ca729f09090b2ade890
     while pc != 0 {
         let next_instruction = memory.0[&pc];
         let instruction = Instruction::parse(next_instruction);
@@ -68,3 +71,125 @@ impl Display for Registers {
         Ok(())
     }
 }
+<<<<<<< HEAD
+=======
+
+fn run_instruction(
+    inst: &Instruction,
+    registers: &mut Registers,
+    pc: &mut u32,
+    memory: &mut Memory,
+) {
+    println!("registers: {:?}", &registers);
+    println!("Executing instruction at 0x{:08x}: {:?}", pc.clone(), inst);
+    *pc += 4;
+    match inst {
+        Instruction::ArithImm { dst, src, imm, op } => {
+            let (a, b) = (registers.0[*src as usize] as i32, *imm);
+            let res = match op {
+                ArithOp::Add => a.wrapping_add(b),
+                ArithOp::Sub => panic!("SubImm not supported"),
+                ArithOp::Xor => a ^ b,
+                ArithOp::Or => a | b,
+                ArithOp::And => a & b,
+                ArithOp::ShiftLeftLogical => a << b,
+                ArithOp::ShiftRightLogical => ((a as u32) >> (b as u32)) as i32,
+                ArithOp::ShiftRightArith => a >> b,
+                ArithOp::SetLessThan => (a < b) as i32,
+                ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
+            };
+            registers.0[*dst as usize] = res as u32;
+        }
+        Instruction::JumpAndLinkRegister { dst, base, offset } => {
+            let new_pc = (registers.0[*base as usize] as i32 + offset) as u32;
+            if *dst != 0 {
+                registers.0[*dst as usize] = *pc;
+            }
+            *pc = new_pc;
+        }
+        Instruction::JumpAndLink { dst, offset } => {
+            if *dst != 0 {
+                registers.0[*dst as usize] = *pc;
+            }
+            *pc -= 4;
+            *pc = (*pc as i32 + offset) as u32;
+        }
+        Instruction::Store {
+            src,
+            offset,
+            base,
+            width,
+        } => {
+            let value = registers.0[*src as usize];
+            let value = match width {
+                LoadStoreWidth::Byte => todo!(),
+                LoadStoreWidth::Half => todo!(),
+                LoadStoreWidth::Word => value,
+            };
+            memory
+                .0
+                .insert(registers.0[*base as usize] + *offset, value);
+        }
+        Instruction::Load {
+            dst,
+            offset,
+            base,
+            width,
+        } => {
+            let value = memory.0[&((registers.0[*base as usize] as i32 + *offset) as u32)];
+            let value = match width {
+                LoadStoreWidth::Byte => todo!(),
+                LoadStoreWidth::Half => todo!(),
+                LoadStoreWidth::Word => value,
+            };
+            registers.0[*dst as usize] = value;
+        }
+        Instruction::Branch {
+            src1,
+            src2,
+            cond,
+            offset,
+        } => {
+            let (a, b) = (registers.0[*src1 as usize], registers.0[*src2 as usize]);
+            let cmp_result = match cond {
+                Comparison::Equal => a == b,
+                Comparison::NotEqual => a != b,
+                Comparison::LessThan => (a as i32) < (b as i32),
+                Comparison::GreaterOrEqual => (a as i32) >= (b as i32),
+                Comparison::LessThanUnsigned => a < b,
+                Comparison::GreaterOrEqualUnsigned => a >= b,
+            };
+            if cmp_result {
+                *pc -= 4;
+                *pc += offset
+            }
+        }
+        Instruction::LoadUpperImm { dst, imm } => registers.0[*dst as usize] = *imm,
+        Instruction::AddUpperImmToPc { dst, imm } => registers.0[*dst as usize] = *pc - 4 + *imm,
+        Instruction::Arith {
+            dst,
+            src1,
+            src2,
+            op,
+        } => {
+            let (a, b) = (
+                registers.0[*src1 as usize] as i32,
+                registers.0[*src2 as usize] as i32,
+            );
+            let res = match op {
+                ArithOp::Add => a.wrapping_add(b),
+                ArithOp::Sub => a - b,
+                ArithOp::Xor => a ^ b,
+                ArithOp::Or => a | b,
+                ArithOp::And => a & b,
+                ArithOp::ShiftLeftLogical => a << b,
+                ArithOp::ShiftRightLogical => ((a as u32) >> (b as u32)) as i32,
+                ArithOp::ShiftRightArith => a >> b,
+                ArithOp::SetLessThan => (a < b) as i32,
+                ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
+            };
+            registers.0[*dst as usize] = res as u32;
+        }
+    }
+}
+>>>>>>> 650562e06d5dad9b81147ca729f09090b2ade890
