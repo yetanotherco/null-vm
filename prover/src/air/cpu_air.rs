@@ -113,7 +113,7 @@ impl AIR for CPUTableAIR {
         ];
         let bit_constraints = new_bit_constraints(&bit_columns_index_to_constraint, 0);
 
-        let next_index = bit_columns_index_to_constraint.len();
+        let mut next_index = bit_columns_index_to_constraint.len();
         // Add constraint
         // Enforces that lhs (Word4L) + rhs (Word4L) = res (Word4L), with carry bits constrained.
         // It is enforced only on rows where the selected instruction flags are active.
