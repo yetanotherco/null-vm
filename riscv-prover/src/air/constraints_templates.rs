@@ -265,7 +265,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                     .unwrap();
                 let carry_0 = (lhs_0 + rhs_0 - res_0) * inverse;
 
-                let bit_contraint: FieldElement<Babybear31PrimeField> = match self.carry_idx {
+                let bit_constraint: FieldElement<Babybear31PrimeField> = match self.carry_idx {
                     CarryIndex::Zero => flag * carry_0 * (carry_0 - one),
                     CarryIndex::One => {
                         // Compute the high word using the first 2 operand limbs.
@@ -282,8 +282,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                         flag * carry_1 * (carry_1 - one)
                     }
                 };
-
-                transition_evaluations[self.constraint_idx()] = bit_contraint.to_extension();
+                transition_evaluations[self.constraint_idx()] = bit_constraint.to_extension();
             }
 
             TransitionEvaluationContext::Verifier {
@@ -313,7 +312,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                     .unwrap();
                 let carry_0 = (lhs_0 + rhs_0 - res_0) * inverse;
 
-                let bit_contraint = match self.carry_idx {
+                let bit_constraint = match self.carry_idx {
                     CarryIndex::Zero => flag * carry_0 * (carry_0 - one),
                     CarryIndex::One => {
                         let lhs_1 = step.get_main_evaluation_element(0, self.lhs_start_idx + 2)
@@ -329,8 +328,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                         flag * carry_1 * (carry_1 - one)
                     }
                 };
-
-                transition_evaluations[self.constraint_idx()] = bit_contraint
+                transition_evaluations[self.constraint_idx()] = bit_constraint
             }
         }
     }
