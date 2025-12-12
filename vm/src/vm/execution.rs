@@ -150,6 +150,7 @@ fn run_instruction(
             };
             dbg!(a, b, cmp_result);
             if cmp_result {
+                *pc -= 4;
                 *pc += offset
             }
         }
