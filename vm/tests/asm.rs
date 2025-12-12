@@ -336,3 +336,23 @@ fn test_srai_negative() {
         0xFFFFFFF8u32 as i32,
     );
 }
+
+#[test]
+fn test_jal() {
+    run_program_and_check_output("./program_artifacts/asm/jal.elf", 1);
+}
+
+#[test]
+fn test_jal_next() {
+    run_program_and_check_output("./program_artifacts/asm/jal_next.elf", 0);
+}
+
+#[test]
+fn test_jal_prev() {
+    run_program_and_check_output("./program_artifacts/asm/jal_prev.elf", 2);
+}
+
+#[test]
+fn test_jal_ret() {
+    run_program_and_check_output("./program_artifacts/asm/jal_ret.elf", 0x0001007c);
+}
