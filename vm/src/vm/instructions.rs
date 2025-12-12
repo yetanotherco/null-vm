@@ -8,7 +8,6 @@ const JUMP_AND_LINK_REGISTER_OPCCODE: u32 = 0b1100111;
 const JUMP_AND_LINK_OPCCODE: u32 = 0b1101111;
 const ADD_UPPER_IMM_TO_PC: u32 = 0b0010111;
 
-
 enum Opcode {
     Arith,
     ArithImm,
@@ -57,7 +56,7 @@ impl Opcode {
             &Opcode::Store => InstructionFormat::S,
             &Opcode::Branch => InstructionFormat::B,
             &Opcode::JumpAndLink => InstructionFormat::J,
-            &Opcode::AddUpperImmToPc => InstructionFormat::U
+            &Opcode::AddUpperImmToPc => InstructionFormat::U,
         }
     }
 }
@@ -171,7 +170,6 @@ impl Instruction {
             InstructionFormat::B => parse_b_instruction(instruction, opcode),
             InstructionFormat::J => parse_j_instruction(instruction, opcode),
             InstructionFormat::U => parse_u_instruction(instruction, opcode),
-            _ => unimplemented!(),
         }
     }
 }
@@ -238,7 +236,6 @@ const SR_FUNC_IDENTIFIER: u32 = 0x5;
 const SLT_FUNC_IDENTIFIER: u32 = 0x2;
 const SLTU_FUNC_IDENTIFIER: u32 = 0x3;
 const U_TYPE_IMM_MASK: u32 = 0xfffff000;
-
 
 // I-Type Instruction Format
 // | imm  | rs1  |funct3|  rd |opcode|
