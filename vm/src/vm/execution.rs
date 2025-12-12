@@ -115,7 +115,7 @@ fn run_instruction(
         } => {
             let value = registers.0[*src as usize];
             let value = match width {
-                LoadStoreWidth::Byte => todo!(),
+                LoadStoreWidth::Byte => value & 0xFF,
                 LoadStoreWidth::Half => todo!(),
                 LoadStoreWidth::Word => value,
             };
@@ -135,6 +135,11 @@ fn run_instruction(
                 LoadStoreWidth::Half => todo!(),
                 LoadStoreWidth::Word => value,
             };
+            registers.0[*dst as usize] = value;
+        }
+        Instruction::LoadByteUnsigned { dst, offset, base } => {
+            let value = memory.0[&((registers.0[*base as usize] as i32 + *offset) as u32)];
+            let value = (value & 0xFF) as u32;
             registers.0[*dst as usize] = value;
         }
         Instruction::Branch {

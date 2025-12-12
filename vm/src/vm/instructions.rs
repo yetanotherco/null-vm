@@ -78,6 +78,11 @@ pub enum ArithOp {
     SetLessThanU,
 }
 
+const LOAD_STORE_BYTE_WIDTH: u32 = 0x0;
+const LOAD_STORE_HALF_WIDTH: u32 = 0x1;
+const LOAD_STORE_WORD_WIDTH: u32 = 0x2;
+const LOAD_BYTE_UNSIGNED_FUNC: u32 = 0x4;
+
 #[derive(Debug)]
 pub enum LoadStoreWidth {
     Byte,
@@ -87,14 +92,11 @@ pub enum LoadStoreWidth {
 
 impl LoadStoreWidth {
     fn from_func3(func3: u32) -> LoadStoreWidth {
-        const LOAD_STORE_BYTE_WIDTH: u32 = 0x0;
-        const LOAD_STORE_HALF_WIDTH: u32 = 0x1;
-        const LOAD_STORE_WORD_WIDTH: u32 = 0x2;
         match func3 {
             LOAD_STORE_BYTE_WIDTH => LoadStoreWidth::Byte,
             LOAD_STORE_HALF_WIDTH => LoadStoreWidth::Half,
             LOAD_STORE_WORD_WIDTH => LoadStoreWidth::Word,
-            _ => panic!("Invalid Width"),
+            _ => panic!("Invalid Width: {func3}"),
         }
     }
 }
@@ -143,6 +145,11 @@ pub enum Instruction {
         offset: i32,
         base: u32,
         width: LoadStoreWidth,
+    },
+    LoadByteUnsigned {
+        dst: u32,
+        offset: i32,
+        base: u32,
     },
     Branch {
         src1: u32,
@@ -302,11 +309,21 @@ fn parse_i_instruction(instruction: u32, opcode: Opcode) -> Instruction {
                 offset: imm,
             }
         }
-        Opcode::Load => Instruction::Load {
-            dst: rd,
-            offset: imm,
-            base: rs1,
-            width: LoadStoreWidth::from_func3(func3),
+        Opcode::Load => {
+            match func3 {
+                LOAD_BYTE_UNSIGNED_FUNC=> Instruction::LoadByteUnsigned {
+                    dst: rd,
+                    offset: imm,
+                    base: rs1,
+                },
+                LOAD_STORE_BYTE_WIDTH | LOAD_STORE_HALF_WIDTH | LOAD_STORE_WORD_WIDTH => Instruction::Load {
+                    dst: rd,
+                    offset: imm,
+                    base: rs1,
+                    width: LoadStoreWidth::from_func3(func3),
+                },
+                _ => panic!("Invalid Load Instruction"),
+            }
         },
         _ => panic!("Invalid Instruction Encoding"),
     }
