@@ -251,12 +251,12 @@ fn parse_i_instruction(instruction: u32, opcode: Opcode) -> Instruction {
                 AND_FUNC_IDENTIFIER => ArithOp::And,
                 SHL_FUNC_IDENTIFIER => {
                     assert!(imm >> 5 == 0);
-                    imm &= 0xF;
+                    imm &= 0x1F;
                     ArithOp::ShiftLeftLogical
                 }
                 SR_FUNC_IDENTIFIER => {
                     let func_id = imm >> 5;
-                    imm &= 0xF;
+                    imm &= 0x1F;
                     match func_id {
                         0x00 => ArithOp::ShiftRightLogical,
                         0x20 => ArithOp::ShiftRightArith,

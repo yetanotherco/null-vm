@@ -20,7 +20,7 @@ fn load_program(instruction_map: BTreeMap<u32, u32>, memory: &mut Memory) {
 fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (i32, i32) {
     let mut pc = entrypoint;
     let mut registers = Registers::default();
-    registers.0[2] = 0xFFFFFFFF; // 4GB
+    registers.0[2] = 0xFFFFFFFFu32; // 4GB
     while pc != registers.0[1] {
         let next_instruction = memory.0[&pc];
         let instruction = Instruction::parse(next_instruction);
@@ -73,18 +73,20 @@ fn run_instruction(
     pc: &mut u32,
     memory: &mut Memory,
 ) {
+    println!("registers: {:?}", &registers);
+    println!("Executing instruction at 0x{:08x}: {:?}", pc.clone(), inst);
     *pc += 4;
     match inst {
         Instruction::ArithImm { dst, src, imm, op } => {
             let (a, b) = (registers.0[*src as usize] as i32, *imm);
             let res = match op {
-                ArithOp::Add => a + b,
+                ArithOp::Add => a.wrapping_add(b),
                 ArithOp::Sub => panic!("SubImm not supported"),
                 ArithOp::Xor => a ^ b,
                 ArithOp::Or => a | b,
                 ArithOp::And => a & b,
                 ArithOp::ShiftLeftLogical => a << b,
-                ArithOp::ShiftRightLogical => a >> b,
+                ArithOp::ShiftRightLogical => ((a as u32) >> (b as u32)) as i32,
                 ArithOp::ShiftRightArith => a >> b,
                 ArithOp::SetLessThan => (a < b) as i32,
                 ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
@@ -151,6 +153,29 @@ fn run_instruction(
                 *pc += offset
             }
         }
-        _ => unimplemented!(),
+        Instruction::Arith {
+            dst,
+            src1,
+            src2,
+            op,
+        } => {
+            let (a, b) = (
+                registers.0[*src1 as usize] as i32,
+                registers.0[*src2 as usize] as i32,
+            );
+            let res = match op {
+                ArithOp::Add => a.wrapping_add(b),
+                ArithOp::Sub => a - b,
+                ArithOp::Xor => a ^ b,
+                ArithOp::Or => a | b,
+                ArithOp::And => a & b,
+                ArithOp::ShiftLeftLogical => a << b,
+                ArithOp::ShiftRightLogical => ((a as u32) >> (b as u32)) as i32,
+                ArithOp::ShiftRightArith => a >> b,
+                ArithOp::SetLessThan => (a < b) as i32,
+                ArithOp::SetLessThanU => ((a as u32) < (b as u32)) as i32,
+            };
+            registers.0[*dst as usize] = res as u32;
+        }
     }
 }
