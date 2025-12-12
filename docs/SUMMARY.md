@@ -20,6 +20,8 @@
 
 ## Getting started
 
+- [Getting started](getting_started.md)
+
 ## Roadmap
 
 - [Roadmap](./roadmap.md)
