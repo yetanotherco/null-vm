@@ -8,6 +8,8 @@ use stark_platinum_prover::{
     constraints::transition::TransitionConstraint, traits::TransitionEvaluationContext,
 };
 
+pub const INV_65536: u64 = 2013235201;
+
 /// Enforces that a specific trace column contains only binary values (0 or 1).
 /// For a trace value `x` in the specified column, the constraint enforces:
 /// x * (x - 1) = 0
@@ -260,9 +262,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                     + two_fifty_six * step.get_main_evaluation_element(0, self.res_start_idx + 1);
 
                 let one = FieldElement::<Babybear31PrimeField>::one();
-                let inverse = FieldElement::<Babybear31PrimeField>::from(65536)
-                    .inv()
-                    .unwrap();
+                let inverse = FieldElement::<Babybear31PrimeField>::from(INV_65536);
                 let carry_0 = (lhs_0 + rhs_0 - res_0) * inverse;
 
                 let bit_constraint: FieldElement<Babybear31PrimeField> = match self.carry_idx {
@@ -307,9 +307,7 @@ impl TransitionConstraint<Babybear31PrimeField, Degree4BabyBearU32ExtensionField
                     + two_fifty_six * step.get_main_evaluation_element(0, self.res_start_idx + 1);
 
                 let one = FieldElement::<Degree4BabyBearU32ExtensionField>::one();
-                let inverse = FieldElement::<Degree4BabyBearU32ExtensionField>::from(65536)
-                    .inv()
-                    .unwrap();
+                let inverse = FieldElement::<Degree4BabyBearU32ExtensionField>::from(INV_65536);
                 let carry_0 = (lhs_0 + rhs_0 - res_0) * inverse;
 
                 let bit_constraint = match self.carry_idx {
