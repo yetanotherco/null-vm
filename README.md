@@ -12,7 +12,7 @@ Right now, this is a project under development and experimentation and must not 
 
 - The Instruction Set Architecture is RISCV64IM
 - The proof system is transparent (no trusted setup) and post-quantum secure (hash-based)
-- The security is over 100 bits of security
+- The security is over 100 bits of provable security (not conjectured)
 - The codebase of the whole project must be simple and minimalistic
 
 ## Design principles
