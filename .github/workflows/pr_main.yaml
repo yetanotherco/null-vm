@@ -50,6 +50,10 @@ jobs:
       - name: Setup Rust Environment
         uses: ./.github/actions/setup-rust
 
-      - name: Run tests
+      - name: Run asm tests
         run: |
-          cd vm && make test-no-compile
+          cd vm && make test-asm-no-compile
+
+      - name: Run rust tests
+        run: |
+          cd vm && make test-rust
