@@ -27,5 +27,5 @@ fn test_fibonacci() {
 
     let results = run_program(program.image, program.entry_point);
 
-    assert!(results.0 == 0);
+    assert!(results.0 == 1597);
 }
