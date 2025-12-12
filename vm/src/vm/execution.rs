@@ -150,7 +150,9 @@ fn run_instruction(
                 Comparison::GreaterOrEqual => a >= b,
             };
             if cmp_result {
-                *pc += offset
+                *pc -= 4;
+                let new_pc = (*pc as i32 + offset) as u32;
+                *pc = new_pc;
             }
         }
         Instruction::Arith {

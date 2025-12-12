@@ -381,3 +381,18 @@ fn test_jalr_odd() {
 fn test_jalr_odd_reg() {
     run_program_and_check_output("./program_artifacts/asm/jalr_odd_reg.elf", 1);
 }
+
+#[test]
+fn test_bne() {
+    run_program_and_check_output("./program_artifacts/asm/bne.elf", 2);
+}
+
+#[test]
+fn test_bne_true() {
+    run_program_and_check_output("./program_artifacts/asm/bne_true.elf", 1);
+}
+
+#[test]
+fn test_bne_neg() {
+    run_program_and_check_output("./program_artifacts/asm/bne_neg.elf", 3);
+}
