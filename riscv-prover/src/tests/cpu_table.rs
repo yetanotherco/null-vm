@@ -150,7 +150,7 @@ pub fn build_cpu_columns_example() -> Vec<Vec<FE>> {
     let load = vec![FE::zero(), FE::one(), FE::zero(), FE::zero()];
     columns.push(load);
     // Column index: 27
-    let store = vec![FE::zero(), FE::zero(), FE::one(), FE::one()];
+    let store = vec![FE::zero(), FE::zero(), FE::one(), FE::zero()];
     columns.push(store);
     // Column index: 28
     let mul = vec![FE::zero(), FE::zero(), FE::zero(), FE::zero()];
@@ -254,8 +254,8 @@ pub fn build_cpu_columns_example() -> Vec<Vec<FE>> {
     // Column index: 48
     let res_1 = vec![
         FE::from(&60u32),   // rv1 + rv2 = 10 + 50
-        FE::from(&2u32),    // rs1 + imm = 2 + 1.
-        FE::from(&4098u32), // rs1 + imm = 3 + 2^12 - 1 = 4098.
+        FE::from(&21u32),   // rv1 + imm = 20 + 1.
+        FE::from(&4125u32), // rv1 + imm = 30 + 2^12 - 1 = 4125.
         FE::from(&40u32),   // rv2 - rv1 = 80 - 40
     ];
     // Column index: 49
