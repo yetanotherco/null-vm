@@ -396,3 +396,8 @@ fn test_bne_true() {
 fn test_bne_neg() {
     run_program_and_check_output("./program_artifacts/asm/bne_neg.elf", 3);
 }
+
+#[test]
+fn test_loop_5() {
+    run_program_and_check_output("./program_artifacts/asm/loop_5.elf", 5);
+}
