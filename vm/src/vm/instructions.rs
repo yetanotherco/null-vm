@@ -87,13 +87,13 @@ pub enum LoadStoreWidth {
 
 impl LoadStoreWidth {
     fn from_func3(func3: u32) -> LoadStoreWidth {
-        const LOAD_STORE_BYTE_WITH: u32 = 0x0;
-        const LOAD_STORE_HALF_WITH: u32 = 0x1;
-        const LOAD_STORE_WORD_WITH: u32 = 0x2;
+        const LOAD_STORE_BYTE_WIDTH: u32 = 0x0;
+        const LOAD_STORE_HALF_WIDTH: u32 = 0x1;
+        const LOAD_STORE_WORD_WIDTH: u32 = 0x2;
         match func3 {
-            LOAD_STORE_BYTE_WITH => LoadStoreWidth::Byte,
-            LOAD_STORE_HALF_WITH => LoadStoreWidth::Half,
-            LOAD_STORE_WORD_WITH => LoadStoreWidth::Word,
+            LOAD_STORE_BYTE_WIDTH => LoadStoreWidth::Byte,
+            LOAD_STORE_HALF_WIDTH => LoadStoreWidth::Half,
+            LOAD_STORE_WORD_WIDTH => LoadStoreWidth::Word,
             _ => panic!("Invalid Width"),
         }
     }
