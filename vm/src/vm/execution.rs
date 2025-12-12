@@ -148,7 +148,6 @@ fn run_instruction(
                 Comparison::LessThan => a < b,
                 Comparison::GreaterOrEqual => a >= b,
             };
-            dbg!(a, b, cmp_result);
             if cmp_result {
                 *pc -= 4;
                 *pc += offset
