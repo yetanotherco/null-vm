@@ -10,7 +10,7 @@ fn test_basic_rust() {
         println!("0x{:08x}: 0x{:08x}", addr, word);
     });
 
-    let results = run_program(program.image, program.entry_point);
+    let (results, _logs) = run_program(program.image, program.entry_point);
 
     assert!(results.0 == 0);
 }
@@ -25,7 +25,7 @@ fn test_fibonacci() {
         println!("0x{:08x}: 0x{:08x}", addr, word);
     });
 
-    let results = run_program(program.image, program.entry_point);
+    let (results, _logs) = run_program(program.image, program.entry_point);
 
     assert!(results.0 == 1597);
 }
