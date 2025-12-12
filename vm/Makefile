@@ -48,7 +48,9 @@ clean: clean-asm clean-rust
 
 test: compile-programs test-no-compile
 
-test-asm: compile-programs-asm
+test-asm: compile-programs-asm test-asm-no-compile
+
+test-asm-no-compile:
 	cargo test --test asm
 
 test-rust: compile-programs-rust
