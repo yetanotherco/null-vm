@@ -6,6 +6,8 @@ const STORE_OPCODE: u32 = 0b0100011;
 const BRANCH_OPCODE: u32 = 0b1100011;
 const JUMP_AND_LINK_REGISTER_OPCCODE: u32 = 0b1100111;
 const JUMP_AND_LINK_OPCCODE: u32 = 0b1101111;
+const LOAD_UPPER_IMM_OPCODE: u32 = 0b0110111;
+const ADD_UPPER_IMM_TO_PC: u32 = 0b0010111;
 
 enum Opcode {
     Arith,
@@ -15,6 +17,8 @@ enum Opcode {
     Branch,
     JumpAndLinkRegister,
     JumpAndLink,
+    LoadUpperImm,
+    AddUpperImmToPc,
 }
 
 impl TryFrom<u32> for Opcode {
@@ -29,6 +33,8 @@ impl TryFrom<u32> for Opcode {
             BRANCH_OPCODE => Opcode::Branch,
             JUMP_AND_LINK_REGISTER_OPCCODE => Opcode::JumpAndLinkRegister,
             JUMP_AND_LINK_OPCCODE => Opcode::JumpAndLink,
+            LOAD_UPPER_IMM_OPCODE => Opcode::LoadUpperImm,
+            ADD_UPPER_IMM_TO_PC => Opcode::AddUpperImmToPc,
             _ => panic!("Unknown Opcode: {value}"),
         })
     }
@@ -39,7 +45,7 @@ enum InstructionFormat {
     I,
     S,
     B,
-    _U,
+    U,
     J,
 }
 
@@ -53,6 +59,7 @@ impl Opcode {
             &Opcode::Store => InstructionFormat::S,
             &Opcode::Branch => InstructionFormat::B,
             &Opcode::JumpAndLink => InstructionFormat::J,
+            &Opcode::LoadUpperImm | &Opcode::AddUpperImmToPc => InstructionFormat::U,
         }
     }
 }
@@ -80,13 +87,13 @@ pub enum LoadStoreWidth {
 
 impl LoadStoreWidth {
     fn from_func3(func3: u32) -> LoadStoreWidth {
-        const LOAD_STORE_BYTE_WITH: u32 = 0x0;
-        const LOAD_STORE_HALF_WITH: u32 = 0x1;
-        const LOAD_STORE_WORD_WITH: u32 = 0x2;
+        const LOAD_STORE_BYTE_WIDTH: u32 = 0x0;
+        const LOAD_STORE_HALF_WIDTH: u32 = 0x1;
+        const LOAD_STORE_WORD_WIDTH: u32 = 0x2;
         match func3 {
-            LOAD_STORE_BYTE_WITH => LoadStoreWidth::Byte,
-            LOAD_STORE_HALF_WITH => LoadStoreWidth::Half,
-            LOAD_STORE_WORD_WITH => LoadStoreWidth::Word,
+            LOAD_STORE_BYTE_WIDTH => LoadStoreWidth::Byte,
+            LOAD_STORE_HALF_WIDTH => LoadStoreWidth::Half,
+            LOAD_STORE_WORD_WIDTH => LoadStoreWidth::Word,
             _ => panic!("Invalid Width"),
         }
     }
@@ -98,6 +105,8 @@ pub enum Comparison {
     NotEqual,
     LessThan,
     GreaterOrEqual,
+    LessThanUnsigned,
+    GreaterOrEqualUnsigned,
 }
 
 #[derive(Debug)]
@@ -141,6 +150,14 @@ pub enum Instruction {
         cond: Comparison,
         offset: u32,
     },
+    LoadUpperImm {
+        dst: u32,
+        imm: u32,
+    },
+    AddUpperImmToPc {
+        dst: u32,
+        imm: u32,
+    },
 }
 
 const OPCODE_MASK: u32 = 0x0000007f;
@@ -151,6 +168,7 @@ const RS2_MASK: u32 = 0x01f00000;
 const RD_MASK: u32 = 0x00000f80;
 const SIGN_MASK: u32 = 0x80000000;
 const I_TYPE_IMM_MASK: u32 = 0x7ff;
+const U_TYPE_IMM_MASK: u32 = 0xfffff000;
 
 impl Instruction {
     pub fn parse(instruction: u32) -> Instruction {
@@ -161,7 +179,7 @@ impl Instruction {
             InstructionFormat::S => parse_s_instruction(instruction, opcode),
             InstructionFormat::B => parse_b_instruction(instruction, opcode),
             InstructionFormat::J => parse_j_instruction(instruction, opcode),
-            _ => unimplemented!(),
+            InstructionFormat::U => parse_u_instruction(instruction, opcode),
         }
     }
 }
@@ -321,6 +339,8 @@ const BRANCH_EQ_IDENTIFIER: u32 = 0x0;
 const BRANCH_NEQ_IDENTIFIER: u32 = 0x1;
 const BRANCH_LT_IDENTIFIER: u32 = 0x4;
 const BRANCH_GE_IDENTIFIER: u32 = 0x5;
+const BRANCH_LTU_IDENTIFIER: u32 = 0x6;
+const BRANCH_GTU_IDENTIFIER: u32 = 0x7;
 
 // B-Type Instruction Format
 // |imm[12|10:5]| rs2  | rs1  |funct3|imm[4:1|11]|opcode|
@@ -338,7 +358,8 @@ fn parse_b_instruction(instruction: u32, opcode: Opcode) -> Instruction {
                 BRANCH_NEQ_IDENTIFIER => Comparison::NotEqual,
                 BRANCH_LT_IDENTIFIER => Comparison::LessThan,
                 BRANCH_GE_IDENTIFIER => Comparison::GreaterOrEqual,
-                // TODO: Missing bltu & bgeu
+                BRANCH_LTU_IDENTIFIER => Comparison::LessThanUnsigned,
+                BRANCH_GTU_IDENTIFIER => Comparison::GreaterOrEqualUnsigned,
                 _ => unimplemented!(),
             };
             Instruction::Branch {
@@ -369,6 +390,19 @@ fn parse_j_instruction(instruction: u32, opcode: Opcode) -> Instruction {
             dst: rd,
             offset: imm,
         },
+        _ => unimplemented!(),
+    }
+}
+
+// U-Type Instruction Format
+// |imm[31:12] | rd  |opcode|
+// | 31..12    |11..7| 6..0 |
+fn parse_u_instruction(instruction: u32, opcode: Opcode) -> Instruction {
+    let imm = instruction & U_TYPE_IMM_MASK;
+    let rd = (instruction & RD_MASK) >> 7;
+    match opcode {
+        Opcode::LoadUpperImm => Instruction::LoadUpperImm { dst: rd, imm },
+        Opcode::AddUpperImmToPc => Instruction::AddUpperImmToPc { dst: rd, imm },
         _ => unimplemented!(),
     }
 }

@@ -21,7 +21,7 @@ fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (i32, i32) {
     let mut pc = entrypoint;
     let mut registers = Registers::default();
     registers.0[2] = 0xFFFFFFFFu32; // 4GB
-    while pc != registers.0[1] {
+    while pc != 0 {
         let next_instruction = memory.0[&pc];
         let instruction = Instruction::parse(next_instruction);
         run_instruction(&instruction, &mut registers, &mut pc, memory);
@@ -94,10 +94,11 @@ fn run_instruction(
             registers.0[*dst as usize] = res as u32;
         }
         Instruction::JumpAndLinkRegister { dst, base, offset } => {
+            let new_pc = (registers.0[*base as usize] as i32 + offset) as u32;
             if *dst != 0 {
                 registers.0[*dst as usize] = *pc;
             }
-            *pc = (registers.0[*base as usize] as i32 + offset) as u32;
+            *pc = new_pc;
         }
         Instruction::JumpAndLink { dst, offset } => {
             if *dst != 0 {
@@ -146,13 +147,18 @@ fn run_instruction(
             let cmp_result = match cond {
                 Comparison::Equal => a == b,
                 Comparison::NotEqual => a != b,
-                Comparison::LessThan => a < b,
-                Comparison::GreaterOrEqual => a >= b,
+                Comparison::LessThan => (a as i32) < (b as i32),
+                Comparison::GreaterOrEqual => (a as i32) >= (b as i32),
+                Comparison::LessThanUnsigned => a < b,
+                Comparison::GreaterOrEqualUnsigned => a >= b,
             };
             if cmp_result {
+                *pc -= 4;
                 *pc += offset
             }
         }
+        Instruction::LoadUpperImm { dst, imm } => registers.0[*dst as usize] = *imm,
+        Instruction::AddUpperImmToPc { dst, imm } => registers.0[*dst as usize] = *pc - 4 + *imm,
         Instruction::Arith {
             dst,
             src1,
