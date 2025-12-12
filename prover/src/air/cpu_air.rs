@@ -17,14 +17,14 @@ use stark_platinum_prover::{
 };
 
 // CPU Columns indeces:
-const TIMESTAMP: usize = 0;
-const PC: usize = 2;
-const RS: usize = 4;
-const RD: usize = 6;
+// const TIMESTAMP: usize = 0;
+// const PC: usize = 2;
+// const RS: usize = 4;
+// const RD: usize = 6;
 const WRITE_REGISTER: usize = 7;
 const MEMORY_2BYTES: usize = 8;
 const MEMORY_4BYTES: usize = 9;
-const IMM: usize = 10;
+// const IMM: usize = 10;
 const SIGNED: usize = 12;
 const MP_SELECTOR: usize = 13;
 const MULDIV_SELECTOR: usize = 14;
@@ -45,14 +45,14 @@ const MUL: usize = 28;
 const DIVREM: usize = 29;
 const ECALL: usize = 30;
 const EBREAK: usize = 31;
-const NEXT_PC: usize = 32;
+// const NEXT_PC: usize = 32;
 const RV_ONE: usize = 34;
-const RV_TWO: usize = 38;
-const RVD: usize = 42;
+// const RV_TWO: usize = 38;
+// const RVD: usize = 42;
 const ARG_TWO: usize = 44;
 const RES: usize = 48;
-const IS_EQUAL: usize = 52;
-const BRANCH_COND: usize = 53;
+// const IS_EQUAL: usize = 52;
+// const BRANCH_COND: usize = 53;
 
 type FE = FieldElement<Babybear31PrimeField>;
 
