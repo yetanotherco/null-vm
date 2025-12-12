@@ -147,18 +147,18 @@ fn run_instruction(
             let cmp_result = match cond {
                 Comparison::Equal => a == b,
                 Comparison::NotEqual => a != b,
-                Comparison::LessThan => a < b,
-                Comparison::GreaterOrEqual => a >= b,
+                Comparison::LessThan => (a as i32) < (b as i32),
+                Comparison::GreaterOrEqual => (a as i32) >= (b as i32),
+                Comparison::LessThanUnsigned => a < b,
+                Comparison::GreaterOrEqualUnsigned => a >= b,
             };
             if cmp_result {
                 *pc -= 4;
                 *pc += offset
             }
         }
-        Instruction::LoadUpperImm { dst, imm } => registers.0[*dst as usize] = *imm << 12,
-        Instruction::AddUpperImmToPc { dst, imm } => {
-            registers.0[*dst as usize] = *pc - 4 + (*imm << 12)
-        }
+        Instruction::LoadUpperImm { dst, imm } => registers.0[*dst as usize] = *imm,
+        Instruction::AddUpperImmToPc { dst, imm } => registers.0[*dst as usize] = *pc - 4 + *imm,
         Instruction::Arith {
             dst,
             src1,

@@ -105,6 +105,8 @@ pub enum Comparison {
     NotEqual,
     LessThan,
     GreaterOrEqual,
+    LessThanUnsigned,
+    GreaterOrEqualUnsigned,
 }
 
 #[derive(Debug)]
@@ -337,6 +339,8 @@ const BRANCH_EQ_IDENTIFIER: u32 = 0x0;
 const BRANCH_NEQ_IDENTIFIER: u32 = 0x1;
 const BRANCH_LT_IDENTIFIER: u32 = 0x4;
 const BRANCH_GE_IDENTIFIER: u32 = 0x5;
+const BRANCH_LTU_IDENTIFIER: u32 = 0x6;
+const BRANCH_GTU_IDENTIFIER: u32 = 0x7;
 
 // B-Type Instruction Format
 // |imm[12|10:5]| rs2  | rs1  |funct3|imm[4:1|11]|opcode|
@@ -354,7 +358,8 @@ fn parse_b_instruction(instruction: u32, opcode: Opcode) -> Instruction {
                 BRANCH_NEQ_IDENTIFIER => Comparison::NotEqual,
                 BRANCH_LT_IDENTIFIER => Comparison::LessThan,
                 BRANCH_GE_IDENTIFIER => Comparison::GreaterOrEqual,
-                // TODO: Missing bltu & bgeu
+                BRANCH_LTU_IDENTIFIER => Comparison::LessThanUnsigned,
+                BRANCH_GTU_IDENTIFIER => Comparison::GreaterOrEqualUnsigned,
                 _ => unimplemented!(),
             };
             Instruction::Branch {
