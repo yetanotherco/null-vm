@@ -23,7 +23,7 @@ fn run_from_entrypoint(memory: &mut Memory, entrypoint: u32) -> (i32, i32) {
     registers.0[2] = 0xFFFFFFFFu32; // 4GB
     while pc != registers.0[1] {
         let next_instruction = memory.0[&pc];
-        let instruction = Instruction::parse(next_instruction as u32);
+        let instruction = Instruction::parse(next_instruction);
         run_instruction(&instruction, &mut registers, &mut pc, memory);
     }
     println!("Final Register Values:\n {}", &registers);
@@ -120,7 +120,7 @@ fn run_instruction(
             };
             memory
                 .0
-                .insert((registers.0[*base as usize] + *offset) as u32, value);
+                .insert(registers.0[*base as usize] + *offset, value);
         }
         Instruction::Load {
             dst,
@@ -159,7 +159,10 @@ fn run_instruction(
             src2,
             op,
         } => {
-            let (a, b) = (registers.0[*src1 as usize] as i32, registers.0[*src2 as usize] as i32);
+            let (a, b) = (
+                registers.0[*src1 as usize] as i32,
+                registers.0[*src2 as usize] as i32,
+            );
             let res = match op {
                 ArithOp::Add => a.wrapping_add(b),
                 ArithOp::Sub => a - b,
