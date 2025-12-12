@@ -10,12 +10,13 @@
     - [Hash function](./hash_function.md)
     - [Fast-Fourier transform](./fast_fourier_transform.md)
     - [Reed-Solomon codes](./reed_solomon_codes.md)
-    - [Constraint]()
-    - [Algebraic intermediate representation]()
-    - [Interactive oracle proof]()
+    - [Constraint](./cryptography/constraint.md)
+    - [Algebraic intermediate representation](./cryptography/air.md)
+    - [Interactive oracle proof](./cryptography/iop.md)
     - [Fast Reed-Solomon Interactive Oracle Proof of Proximity (FRI)](./fri.md)
-    - [Provable security and conjectured security]()
-    - [Lookup argument]()
+    - [Provable security and conjectured security](./cryptography/security.md)
+    - [Lookup argument](./cryptography/lookup.md)
+- [Virtual machine](./virtual_machine/introduction.md)
 
 ## Getting started
 
