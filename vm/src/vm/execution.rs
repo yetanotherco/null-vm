@@ -155,6 +155,9 @@ fn run_instruction(
                 *pc = new_pc;
             }
         }
+        Instruction::AddUpperImmToPc { dst, imm } => {
+            registers.0[*dst as usize] = *pc - 4 + *imm;
+        }
         Instruction::Arith {
             dst,
             src1,

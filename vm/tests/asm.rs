@@ -401,3 +401,28 @@ fn test_bne_neg() {
 fn test_loop_5() {
     run_program_and_check_output("./program_artifacts/asm/loop_5.elf", 5);
 }
+
+#[test]
+fn test_lw_sw() {
+    run_program_and_check_output("./program_artifacts/asm/lw_sw.elf", 1);
+}
+
+#[test]
+fn test_lw_sw_offset() {
+    run_program_and_check_output("./program_artifacts/asm/lw_sw_offset.elf", 1);
+}
+
+#[test]
+fn test_lw_sw_offset_odd() {
+    run_program_and_check_output("./program_artifacts/asm/lw_sw_offset_odd.elf", 1);
+}
+
+#[test]
+fn test_auipc() {
+    run_program_and_check_output("./program_artifacts/asm/auipc.elf", 0x00010074);
+}
+
+#[test]
+fn test_auipc_offset() {
+    run_program_and_check_output("./program_artifacts/asm/auipc_offset.elf", 0x00011074);
+}
